@@ -1,0 +1,328 @@
+import numpy as np
+import math
+import random
+import matplotlib.pyplot as plt
+from scipy.optimize import minimize
+class CubeFunction:
+    def __init__(self):
+        self.lower_limit = 0
+        self.upper_limit = 1
+        self.name ="cube"#Record function name
+        self.calls=0        #Record function call
+
+    def function(self, x):
+        self.calls+=1
+        return x * x * x 
+class AbsFunction:
+    def __init__(self):
+        self.lower_limit = 0
+        self.upper_limit = 1
+        self.name ="abs"
+        self.calls=0 
+    def function(self, x):
+        self.calls+=1
+        return abs(x-0.2)
+class SineInverse:
+    def __init__(self):
+        self.lower_limit = 0.01
+        self.upper_limit = 1
+        self.name="sine"
+        self.calls=0 
+    def function(self, x):
+        self.calls+=1
+        return  x*math.sin(1/x)
+def clearcalls():
+    cube_function.calls = 0
+    abs_function.calls = 0
+    sin_function.calls = 0
+1.1 exhaustive method
+
+def exhaustive_search(function_instance,epsilon):
+    min_result=np.inf
+    N = 0
+    for i in  range(1001):
+        N+=1
+        x=function_instance.lower_limit+i*epsilon*(function_instance.upper_limit- function_instance.lower_limit)
+        y=function_instance.function(x)
+        min_result=min(min_result,y)
+
+    print(f"{function_instance.name}_exhaustive: {min_result}")
+    print(f"{function_instance.name}_Function calls: {function_instance.calls}")
+    print(f"{function_instance.name}_iterations: {N}")
+cube_function = CubeFunction()
+abs_function=AbsFunction()
+sin_function=SineInverse()
+epsilon=0.001 #inital
+exhaustive_search(cube_function,epsilon)
+exhaustive_search(abs_function,epsilon)
+exhaustive_search(sin_function,epsilon)
+cube_exhaustive: 0.0
+cube_Function calls: 1001
+cube_iterations: 1001
+abs_exhaustive: 0.0
+abs_Function calls: 1001
+abs_iterations: 1001
+sine_exhaustive: -0.2172296012912312
+sine_Function calls: 1001
+sine_iterations: 1001
+clearcalls()
+1.2 Dichotomy search
+
+def dichotomy_method (function_instance,epsilon):
+    n=0
+    upper_limit=function_instance.upper_limit
+    lower_limit=function_instance.lower_limit
+    while (np.abs(upper_limit - lower_limit)>=epsilon):
+        n+=1
+        gama = 0.0005
+        x1 = (upper_limit+lower_limit - gama)/2
+        x2=(upper_limit+lower_limit + gama)/2
+        if function_instance.function(x1)<=function_instance.function(x2):
+            upper_limit=x2
+        else:
+            lower_limit=x1
+    min_value = function_instance.function((lower_limit + upper_limit)/2)
+    print(f"{function_instance.name}_dichotomy_search: {min_value}")
+    print(f"{function_instance.name}_Function calls: {function_instance.calls}")
+    print(f"{function_instance.name}_iterations: {n}")
+dichotomy_method(cube_function,epsilon)
+dichotomy_method(abs_function,epsilon)
+dichotomy_method(sin_function,epsilon)
+cube_dichotomy_search: 1.2056736854538035e-10
+cube_Function calls: 23
+cube_iterations: 11
+abs_dichotomy_search: 0.0001011962890624385
+abs_Function calls: 23
+abs_iterations: 11
+sine_dichotomy_search: -0.21723352556119732
+sine_Function calls: 23
+sine_iterations: 11
+clearcalls()
+1.3 golden section search
+
+def golden_section_search(function_instance,epsilon):
+    upper_limit=function_instance.upper_limit
+    lower_limit=function_instance.lower_limit
+    n=0
+    s=0
+    x1=lower_limit+(3-np.sqrt(5))/2*(upper_limit-lower_limit)
+    x2=upper_limit+(np.sqrt(5)-3)/2*(upper_limit-lower_limit)
+    while (np.abs(upper_limit - lower_limit)>=0.001):
+        n+=1
+        if function_instance.function(x1)<=function_instance.function(x2):
+            upper_limit=x2
+            x2 = x1
+            x1=lower_limit+(3-np.sqrt(5))/2*(upper_limit-lower_limit)
+        else:
+            lower_limit=x1
+            x1 = x2
+            x2=upper_limit+(np.sqrt(5)-3)/2*(upper_limit-lower_limit)
+    min_value = function_instance.function((lower_limit + upper_limit)/2)
+    print(f"{function_instance.name}_golden section search: {min_value}")
+    print(f"{function_instance.name}_Function calls: {function_instance.calls}")
+    print(f"{function_instance.name}_iterations: {n}")
+golden_section_search(cube_function,epsilon)
+golden_section_search(abs_function,epsilon)
+golden_section_search(sin_function,epsilon)
+cube_golden section search: 4.92568008577283e-11
+cube_Function calls: 31
+cube_iterations: 15
+abs_golden section search: 7.331374358568454e-05
+abs_Function calls: 31
+abs_iterations: 15
+sine_golden section search: -0.21723232817753246
+sine_Function calls: 31
+sine_iterations: 15
+Task 2 2D_calculation
+#generate the noisy data
+alpha=np.random.random()
+beta=random.random()
+k=range(0,101)
+x_data=[]
+y_data=[]
+for i in k:
+    x=i/100
+    noise=np.random.normal(0,1)
+    delta_values=np.random.normal(0, 1, 1)
+    y=alpha*x+beta+noise
+    x_data.append(x)
+    y_data.append(y)
+def linear_function(a, b, x):
+    return a * x + b
+def rational_function(a, b, x):
+    return a / (1 + b * x)
+def error_function(params, x, y, func):
+    a, b = params
+    predictions = func(a, b, x)
+    error = np.sum((predictions - y) ** 2)
+    return error
+2.1 Exhaustive Search-linear_function
+
+list1 = []
+for a in np.arange(0, 1, 0.001):
+    for b in np.arange(0, 1, 0.001):
+        error = error_function([a, b], x, y, linear_function)
+        list1.append([error, a, b])
+
+best_params_linear = min(list1, key=lambda x: x[0])
+a_linear, b_linear = best_params_linear[1], best_params_linear[2]
+
+x_data = np.array(x_data)
+exh_lin = [a_linear,b_linear]
+plt.scatter(x_data,y_data)
+plt.plot(x_data, a_linear*x_data+b_linear, 'r')
+
+print('[a, b] =',[a_linear,b_linear])
+print('Exhaustive Search-linear_function_f-calculations:',{1001*1001})
+print('Exhaustive Search-linear_N of iterations:',{1001*1001})
+[a, b] = [0.004, 0.5760000000000001]
+Exhaustive Search-linear_function_f-calculations: {1002001}
+Exhaustive Search-linear_N of iterations: {1002001}
+No description has been provided for this image
+2.2 Exhaustive Search-rational_function
+
+list2 = []
+for a in np.arange(0, 1, 0.001):
+    for b in np.arange(0, 1, 0.001):
+        error = error_function([a, b], x, y, rational_function)
+        list2.append([error, a, b])
+
+best_params_linear_r= min(list2, key=lambda x: x[0])
+a_linear, b_linear = best_params_linear_r[1], best_params_linear_r[2]
+
+x_data = np.array(x_data)
+exh_rat = [a_linear,b_linear]
+plt.scatter(x_data,y_data)
+plt.plot(x_data, a_linear/(1+b_linear*x_data),'r')
+         
+print('[a, b] =',[a_linear,b_linear])
+print('Exhaustive Search-rational_function_f-calculations:',{1000 ** 2})
+print('Exhaustive Search-rational_function_N of iterations:',{1000 ** 2})
+[a, b] = [0.672, 0.158]
+Exhaustive Search-rational_function_f-calculations: {1000000}
+Exhaustive Search-rational_function_N of iterations: {1000000}
+No description has been provided for this image
+2.2 Gauss Methods
+
+# Function that traverses the first vector
+def core_Method_1(b, x, y, func,f_calc):
+    errors_1=[]
+    for i in np.arange(0, 1, 0.001):
+        f_calc += 1
+        error_value = error_function([i, b], x, y, func)
+        errors_1.append(error_value)
+    min_error = min(errors_1)
+    a = 0.001 * errors_1.index(min_error)
+    return a,f_calc
+#Function that traverses the second vector
+def core_Method_2(a,x,y,func,f_calc):
+    errors_2=[]
+    for i in np.arange(0, 1, 0.001):
+        f_calc += 1
+        error_value = error_function([a, i], x, y, func)
+        errors_2.append(error_value)
+    min_error = min(errors_2)
+    b = 0.001 * errors_2.index(min_error)
+    return b,f_calc
+# Loop  two functions and pass arguments to each other
+def Gauss_Method(func): 
+    f_calc=0
+    a=0.005
+    b=0.005
+    N=0
+    while(True):
+       N+=2
+       a_prev=a
+       b_prev=b
+       a,f_calc=core_Method_1(b, x, y, func,f_calc)
+       b,f_calc=core_Method_2(a,x,y, func,f_calc)
+       if abs(a - a_prev) < epsilon and abs(b - b_prev) < epsilon:
+            break
+            
+    return a,b,N,f_calc   
+2.2.1 Gauss_Method_linear plot
+
+a,b,N,f_calc=Gauss_Method(linear_function)
+x_data = np.array(x_data)
+gs_lin=[a,b]
+plt.scatter(x_data,y_data)
+plt.plot(x_data, a*x_data+b,'r')
+print('[a, b] =',[a,b])
+print('Exhaustive Search-rational_function_f-calculations:',f_calc)
+print('Exhaustive Search-rational_function_N of iterations:',N)
+[a, b] = [0.5750000000000001, 0.005]
+Exhaustive Search-rational_function_f-calculations: 4000
+Exhaustive Search-rational_function_N of iterations: 4
+No description has been provided for this image
+2.2.2Gauss_Method_rational plot
+
+a,b,N,f=Gauss_Method(rational_function)
+x_data = np.array(x_data)
+plt.scatter(x_data,y_data)
+plt.plot(x_data,a/(1+b*x_data), 'r')
+gs_rat=[a,b]
+print('[a, b] =',[a,b])
+print('Gauss_Method_rational_f-calculations:',f_calc)
+print('Gauss_Method_rational_function_N of iterations:',N)
+[a, b] = [0.583, 0.005]
+Gauss_Method_rational_f-calculations: 4000
+Gauss_Method_rational_function_N of iterations: 4
+No description has been provided for this image
+2.3 Nelder-Mead Methods
+
+initial_guess = [0.3, 0.3] # Replace a_guess and b_guess with your initial values
+result_nelder_mead = minimize(error_function, initial_guess, method='nelder-mead', args=(x_data, y_data, linear_function), tol=0.001, options={'xatol': 0.001,'disp': True})
+a_rational_nelder_mead, b_rational_nelder_mead = result_nelder_mead.x
+nm_lin=[a_rational_nelder_mead,b_rational_nelder_mead]
+plt.scatter(x_data,y_data)
+plt.plot(x_data, a_rational_nelder_mead*x_data+b_rational_nelder_mead, 'r')
+
+print('[a, b] =',[a_rational_nelder_mead,b_rational_nelder_mead])
+Optimization terminated successfully.
+         Current function value: 97.527002
+         Iterations: 31
+         Function evaluations: 59
+[a, b] = [0.5054315538913954, 0.9298017966072073]
+No description has been provided for this image
+initial_guess = [0.3, 0.3]
+
+result_nelder_mead = minimize(error_function, initial_guess, method='nelder-mead', args=(x_data, y_data, rational_function), tol=0.001, options={'xatol': 0.001,'disp': True})
+
+a_rational_nelder_mead, b_rational_nelder_mead = result_nelder_mead.x
+nm_rat=[a_rational_nelder_mead,b_rational_nelder_mead]
+plt.scatter(x_data, y_data)
+plt.plot(x_data, a_rational_nelder_mead / (1 + b_rational_nelder_mead * x_data), 'r')
+
+print('[a, b] =', [a_rational_nelder_mead, b_rational_nelder_mead])
+Optimization terminated successfully.
+         Current function value: 96.653667
+         Iterations: 31
+         Function evaluations: 62
+[a, b] = [0.8929269202658896, -0.4414337892271615]
+No description has been provided for this image
+2.4 Compare
+
+plt.figure(figsize=(10,7))
+plt.title("Linear", fontsize=14)
+plt.xlabel("X")
+plt.ylabel("Y")
+
+plt.plot(x_data, y_data, '.b', label="Given data")
+
+plt.plot(x_data, exh_lin[0]*x_data + exh_lin[1], 'g', label="Exhaustive", linewidth=3)
+plt.plot(x_data, gs_lin[0]*x_data + gs_lin[1], 'r', label="Gauss", linewidth=3)
+plt.plot(x_data, nm_lin[0]*x_data + nm_lin[1], 'y', label="Nelder-Mead", linewidth=3)
+plt.legend(fontsize=14)
+<matplotlib.legend.Legend at 0x20a9e408a50>
+No description has been provided for this image
+plt.figure(figsize=(10,7))
+plt.title("Rational", fontsize=14)
+plt.plot(x_data, y_data, '.b', label="Given data")
+plt.xlabel("X")
+plt.ylabel("Y")
+plt.plot(x_data, exh_rat[0] / (1 + exh_rat[1]*x_data), 'g', label="Exhaustive", linewidth=3)
+plt.plot(x_data, gs_rat[0] / (1 + gs_rat[1]*x_data), 'r', label="Gauss", linewidth=3)
+plt.plot(x_data, nm_rat[0] / (1 + nm_rat[1]*x_data), 'y', label="Nelder-Mead", linewidth=3)
+plt.legend(fontsize=14)
+<matplotlib.legend.Legend at 0x20a9e7d81d0>
+No description has been provided for this image

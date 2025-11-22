@@ -1,0 +1,726 @@
+clickhouse-0.clickhouse.clickhouse.svc.cluster.local :) CREATE TABLE prodriges_374222.transacciones_bueno ON CLUSTER kube_clickhouse_cluster (
+:-]     `user_id_out` Int64,
+:-]     `user_id_in` Int64,
+:-]     `important` Int8,
+:-]     `amount` Float64,
+:-]     `datetime` DateTime
+:-] ) ENGINE = MergeTree
+:-] PARTITION BY toYYYYMM(datetime)
+:-] ORDER BY user_id_out;
+
+CREATE TABLE prodriges_374222.transacciones_bueno ON CLUSTER kube_clickhouse_cluster
+(
+    `user_id_out` Int64,
+    `user_id_in` Int64,
+    `important` Int8,
+    `amount` Float64,
+    `datetime` DateTime
+)
+ENGINE = MergeTree
+PARTITION BY toYYYYMM(datetime)
+ORDER BY user_id_out
+
+Query id: 0e6f0e22-aeeb-43ed-93e9-38f7d50e23d2
+
+┌─host────────────────────┬─port─┬─status─┬─error─┬─num_hosts_remaining─┬─num_hosts_active─┐
+│ clickhouse-6.clickhouse │ 9000 │      0 │       │                   8 │                0 │
+│ clickhouse-4.clickhouse │ 9000 │      0 │       │                   7 │                0 │
+│ clickhouse-8.clickhouse │ 9000 │      0 │       │                   6 │                0 │
+│ clickhouse-2.clickhouse │ 9000 │      0 │       │                   5 │                0 │
+│ clickhouse-1.clickhouse │ 9000 │      0 │       │                   4 │                0 │
+│ clickhouse-5.clickhouse │ 9000 │      0 │       │                   3 │                0 │
+│ clickhouse-0.clickhouse │ 9000 │      0 │       │                   2 │                0 │
+│ clickhouse-7.clickhouse │ 9000 │      0 │       │                   1 │                0 │
+│ clickhouse-3.clickhouse │ 9000 │      0 │       │                   0 │                0 │
+└─────────────────────────┴──────┴────────┴───────┴─────────────────────┴──────────────────┘
+
+9 rows in set. Elapsed: 0.120 sec.
+
+clickhouse-0.clickhouse.clickhouse.svc.cluster.local :) CREATE TABLE prodriges_374222.distribuido_transacciones_bueno ON CLUSTER kube_clickhouse_cluster AS prodriges_374222.transacciones_bueno
+:-] ENGINE = Distribuidoibuted(kube_clickhouse_cluster, prodriges_374222, transacciones_bueno, xxHash64(user_id_out));
+
+CREATE TABLE prodriges_374222.distribuido_transacciones_bueno ON CLUSTER kube_clickhouse_cluster AS prodriges_374222.transacciones_bueno
+ENGINE = Distribuidoibuted(kube_clickhouse_cluster, prodriges_374222, transacciones_bueno, xxHash64(user_id_out))
+
+Query id: ed362d2c-12cd-483d-b98c-03c5b36dbba7
+
+┌─host────────────────────┬─port─┬─status─┬─error───────────────────────────────────────────────────────────────────────────────────────────────────────────────────┬─num_hosts_remaining─┬─num_hosts_active─┐
+│ clickhouse-6.clickhouse │ 9000 │     56 │ Code: 56, e.displayText() = DB::Exception: Unknown table engine Distribuidoibuted (version 21.8.10.19 (official build)) │                   8 │                0 │
+│ clickhouse-4.clickhouse │ 9000 │     56 │ Code: 56, e.displayText() = DB::Exception: Unknown table engine Distribuidoibuted (version 21.8.10.19 (official build)) │                   7 │                0 │
+│ clickhouse-2.clickhouse │ 9000 │     56 │ Code: 56, e.displayText() = DB::Exception: Unknown table engine Distribuidoibuted (version 21.8.10.19 (official build)) │                   6 │                0 │
+│ clickhouse-8.clickhouse │ 9000 │     56 │ Code: 56, e.displayText() = DB::Exception: Unknown table engine Distribuidoibuted (version 21.8.10.19 (official build)) │                   5 │                0 │
+│ clickhouse-1.clickhouse │ 9000 │     56 │ Code: 56, e.displayText() = DB::Exception: Unknown table engine Distribuidoibuted (version 21.8.10.19 (official build)) │                   4 │                0 │
+│ clickhouse-5.clickhouse │ 9000 │     56 │ Code: 56, e.displayText() = DB::Exception: Unknown table engine Distribuidoibuted (version 21.8.10.19 (official build)) │                   3 │                0 │
+│ clickhouse-0.clickhouse │ 9000 │     56 │ Code: 56, e.displayText() = DB::Exception: Unknown table engine Distribuidoibuted (version 21.8.10.19 (official build)) │                   2 │                0 │
+│ clickhouse-7.clickhouse │ 9000 │     56 │ Code: 56, e.displayText() = DB::Exception: Unknown table engine Distribuidoibuted (version 21.8.10.19 (official build)) │                   1 │                0 │
+│ clickhouse-3.clickhouse │ 9000 │     56 │ Code: 56, e.displayText() = DB::Exception: Unknown table engine Distribuidoibuted (version 21.8.10.19 (official build)) │                   0 │                0 │
+└─────────────────────────┴──────┴────────┴─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┴─────────────────────┴──────────────────┘
+↑ Progress: 0.00 rows, 0.00 B (0.00 rows/s., 0.00 B/s.)  0%
+9 rows in set. Elapsed: 0.126 sec.
+
+Received exception from server (version 21.8.10):
+Code: 56. DB::Exception: Received from clickhouse-0.clickhouse.clickhouse:9000. DB::Exception: There was an error on [clickhouse-6.clickhouse:9000]: Code: 56, e.displayText() = DB::Exception: Unknown table engine Distribuidoibuted (version 21.8.10.19 (official build)).
+
+clickhouse-0.clickhouse.clickhouse.svc.cluster.local :) CREATE TABLE prodriges_374222.distribuido_transacciones_bueno ON CLUSTER kube_clickhouse_cluster AS prodriges_374222.transacciones_bueno
+:-] ENGINE = Distribuidoibuted(kube_clickhouse_cluster, prodriges_374222, transacciones_bueno, xxHash64(user_id_out));
+
+CREATE TABLE prodriges_374222.distribuido_transacciones_bueno ON CLUSTER kube_clickhouse_cluster AS prodriges_374222.transacciones_bueno
+ENGINE = Distribuidoibuted(kube_clickhouse_cluster, prodriges_374222, transacciones_bueno, xxHash64(user_id_out))
+
+Query id: da73f6b7-fe44-4f69-90a3-27c1f4c3e4e6
+
+┌─host────────────────────┬─port─┬─status─┬─error───────────────────────────────────────────────────────────────────────────────────────────────────────────────────┬─num_hosts_remaining─┬─num_hosts_active─┐
+│ clickhouse-6.clickhouse │ 9000 │     56 │ Code: 56, e.displayText() = DB::Exception: Unknown table engine Distribuidoibuted (version 21.8.10.19 (official build)) │                   8 │                0 │
+│ clickhouse-4.clickhouse │ 9000 │     56 │ Code: 56, e.displayText() = DB::Exception: Unknown table engine Distribuidoibuted (version 21.8.10.19 (official build)) │                   7 │                0 │
+│ clickhouse-8.clickhouse │ 9000 │     56 │ Code: 56, e.displayText() = DB::Exception: Unknown table engine Distribuidoibuted (version 21.8.10.19 (official build)) │                   6 │                0 │
+│ clickhouse-2.clickhouse │ 9000 │     56 │ Code: 56, e.displayText() = DB::Exception: Unknown table engine Distribuidoibuted (version 21.8.10.19 (official build)) │                   5 │                0 │
+│ clickhouse-1.clickhouse │ 9000 │     56 │ Code: 56, e.displayText() = DB::Exception: Unknown table engine Distribuidoibuted (version 21.8.10.19 (official build)) │                   4 │                0 │
+│ clickhouse-5.clickhouse │ 9000 │     56 │ Code: 56, e.displayText() = DB::Exception: Unknown table engine Distribuidoibuted (version 21.8.10.19 (official build)) │                   3 │                0 │
+│ clickhouse-0.clickhouse │ 9000 │     56 │ Code: 56, e.displayText() = DB::Exception: Unknown table engine Distribuidoibuted (version 21.8.10.19 (official build)) │                   2 │                0 │
+│ clickhouse-7.clickhouse │ 9000 │     56 │ Code: 56, e.displayText() = DB::Exception: Unknown table engine Distribuidoibuted (version 21.8.10.19 (official build)) │                   1 │                0 │
+│ clickhouse-3.clickhouse │ 9000 │     56 │ Code: 56, e.displayText() = DB::Exception: Unknown table engine Distribuidoibuted (version 21.8.10.19 (official build)) │                   0 │                0 │
+└─────────────────────────┴──────┴────────┴─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┴─────────────────────┴──────────────────┘
+↗ Progress: 0.00 rows, 0.00 B (0.00 rows/s., 0.00 B/s.)  0%
+9 rows in set. Elapsed: 0.122 sec.
+
+Received exception from server (version 21.8.10):
+Code: 56. DB::Exception: Received from clickhouse-0.clickhouse.clickhouse:9000. DB::Exception: There was an error on [clickhouse-6.clickhouse:9000]: Code: 56, e.displayText() = DB::Exception: Unknown table engine Distribuidoibuted (version 21.8.10.19 (official build)).
+
+clickhouse-0.clickhouse.clickhouse.svc.cluster.local :) CREATE TABLE prodriges_374222.distribuido_transacciones_bueno ON CLUSTER kube_clickhouse_cluster AS prodriges_374222.transacciones_bueno
+:-] ENGINE = Distributed(kube_clickhouse_cluster, prodriges_374222, transacciones_bueno, xxHash64(user_id_out));
+
+CREATE TABLE prodriges_374222.distribuido_transacciones_bueno ON CLUSTER kube_clickhouse_cluster AS prodriges_374222.transacciones_bueno
+ENGINE = Distributed(kube_clickhouse_cluster, prodriges_374222, transacciones_bueno, xxHash64(user_id_out))
+
+Query id: 1c910e0f-6693-4e34-8347-4e07fe334bb9
+
+┌─host────────────────────┬─port─┬─status─┬─error─┬─num_hosts_remaining─┬─num_hosts_active─┐
+│ clickhouse-6.clickhouse │ 9000 │      0 │       │                   8 │                0 │
+│ clickhouse-4.clickhouse │ 9000 │      0 │       │                   7 │                0 │
+│ clickhouse-8.clickhouse │ 9000 │      0 │       │                   6 │                0 │
+│ clickhouse-2.clickhouse │ 9000 │      0 │       │                   5 │                0 │
+│ clickhouse-1.clickhouse │ 9000 │      0 │       │                   4 │                0 │
+│ clickhouse-5.clickhouse │ 9000 │      0 │       │                   3 │                0 │
+│ clickhouse-0.clickhouse │ 9000 │      0 │       │                   2 │                0 │
+│ clickhouse-7.clickhouse │ 9000 │      0 │       │                   1 │                0 │
+│ clickhouse-3.clickhouse │ 9000 │      0 │       │                   0 │                0 │
+└─────────────────────────┴──────┴────────┴───────┴─────────────────────┴──────────────────┘
+
+9 rows in set. Elapsed: 0.121 sec.
+
+clickhouse-0.clickhouse.clickhouse.svc.cluster.local :) exit
+Bye.
+(base) prodriges-374222@jupyter-spark-674ddb86b-765m5:~$ cat shared-data/clickhouse_data/transactions_12M.parquet | \
+ient --host=clickhouse-0.clickhouse.clickhouse > clickhouse-client --host=clickhouse-0.clickhouse.clickhouse \
+> --user=prodriges_374222 \
+> --password=479Ak98oRi \
+> --query="INSERT INTO prodriges_374222. distribuido_transacciones_bueno FORMAT Parquet"
+(base) prodriges-374222@jupyter-spark-674ddb86b-765m5:~$ clickhouse-client --host=clickhouse-<0-8>.clickhouse.clickhouse --user=prodriges_374222 --ask-password
+bash: 0-8: No such file or directory
+(base) prodriges-374222@jupyter-spark-674ddb86b-765m5:~$ clickhouse-client --host=clickhouse-0.clickhouse.clickhouse --user=prodriges_374222 --ask-password
+ClickHouse client version 21.8.10.19 (official build).
+Password for user (prodriges_374222):
+Connecting to clickhouse-0.clickhouse.clickhouse:9000 as user prodriges_374222.
+Connected to ClickHouse server version 21.8.10 revision 54449.
+
+clickhouse-0.clickhouse.clickhouse.svc.cluster.local :) CREATE TABLE prodriges_374222.agregado_transacciones_bueno ON CLUSTER kube_clickhouse_cluster (
+:-]     `user_id` Int64,
+:-]     `income_amount` AggregateFunction(sum, Float64),
+    `outcome_amount` AggregateFunction(sum, Float64),
+    `month` DateTime) ENGINE = AggregatingMe
+Syntax error: failed at position 95 ('(') (line 1, col 95):
+
+CREATE TABLE prodriges_374222.agregado_transacciones_bueno ON CLUSTER kube_clickhouse_cluster (
+    `user_id` Int64,
+    `income_amount` AggregateFunction(sum, Float64),
+
+Unmatched parentheses: (
+
+clickhouse-0.clickhouse.clickhouse.svc.cluster.local :)     `outcome_amount` AggregateFunction(sum, Float64),
+:-]     `month` DateTime) ENGINE = AggregatingMergeTree
+:-] ORDER BY (user_id, month);
+
+Syntax error: failed at position 75 (')') (line 2, col 21):
+
+    `outcome_amount` AggregateFunction(sum, Float64),
+    `month` DateTime) ENGINE = AggregatingMergeTree
+ORDER BY (user_id, month);
+
+Unmatched parentheses: )
+
+clickhouse-0.clickhouse.clickhouse.svc.cluster.local :) CREATE TABLE prodriges_374222.agregado_transacciones_bueno ON CLUSTER kube_clickhouse_cluster (
+:-]     `user_id` Int64,
+:-]     `income_amount` AggregateFunction(sum, Float64),
+:-]     `outcome_amount` AggregateFunction(sum, Float64),
+:-]     `month` DateTime) ENGINE = AggregatingMergeTree
+:-] ORDER BY (user_id, month);
+
+CREATE TABLE prodriges_374222.agregado_transacciones_bueno ON CLUSTER kube_clickhouse_cluster
+(
+    `user_id` Int64,
+    `income_amount` AggregateFunction(sum, Float64),
+    `outcome_amount` AggregateFunction(sum, Float64),
+    `month` DateTime
+)
+ENGINE = AggregatingMergeTree
+ORDER BY (user_id, month)
+
+Query id: 467d3008-5ccc-464d-84ac-6cc245a9ec43
+
+┌─host────────────────────┬─port─┬─status─┬─error─┬─num_hosts_remaining─┬─num_hosts_active─┐
+│ clickhouse-6.clickhouse │ 9000 │      0 │       │                   8 │                0 │
+│ clickhouse-4.clickhouse │ 9000 │      0 │       │                   7 │                0 │
+│ clickhouse-2.clickhouse │ 9000 │      0 │       │                   6 │                0 │
+│ clickhouse-8.clickhouse │ 9000 │      0 │       │                   5 │                0 │
+│ clickhouse-1.clickhouse │ 9000 │      0 │       │                   4 │                0 │
+│ clickhouse-5.clickhouse │ 9000 │      0 │       │                   3 │                0 │
+│ clickhouse-0.clickhouse │ 9000 │      0 │       │                   2 │                0 │
+│ clickhouse-7.clickhouse │ 9000 │      0 │       │                   1 │                0 │
+│ clickhouse-3.clickhouse │ 9000 │      0 │       │                   0 │                0 │
+└─────────────────────────┴──────┴────────┴───────┴─────────────────────┴──────────────────┘
+
+9 rows in set. Elapsed: 0.125 sec.
+
+clickhouse-0.clickhouse.clickhouse.svc.cluster.local :) CREATE TABLE prodriges_374222.distribuido_agregado_transacciones_bueno ON CLUSTER kube_clickhouse_cluster AS prodriges_374222.agregado_transacciones_bueno
+:-] ENGINE = Distributed(kube_clickhouse_cluster, prodriges_374222, agregado_transacciones_bueno, xxHash64(user_id));
+
+CREATE TABLE prodriges_374222.distribuido_agregado_transacciones_bueno ON CLUSTER kube_clickhouse_cluster AS prodriges_374222.agregado_transacciones_bueno
+ENGINE = Distributed(kube_clickhouse_cluster, prodriges_374222, agregado_transacciones_bueno, xxHash64(user_id))
+
+Query id: bd8f0053-16d7-45de-9fb9-79bbe9fd5c94
+
+┌─host────────────────────┬─port─┬─status─┬─error─┬─num_hosts_remaining─┬─num_hosts_active─┐
+│ clickhouse-6.clickhouse │ 9000 │      0 │       │                   8 │                0 │
+│ clickhouse-4.clickhouse │ 9000 │      0 │       │                   7 │                0 │
+│ clickhouse-8.clickhouse │ 9000 │      0 │       │                   6 │                0 │
+│ clickhouse-1.clickhouse │ 9000 │      0 │       │                   5 │                0 │
+│ clickhouse-5.clickhouse │ 9000 │      0 │       │                   4 │                0 │
+│ clickhouse-0.clickhouse │ 9000 │      0 │       │                   3 │                0 │
+│ clickhouse-7.clickhouse │ 9000 │      0 │       │                   2 │                0 │
+│ clickhouse-3.clickhouse │ 9000 │      0 │       │                   1 │                0 │
+└─────────────────────────┴──────┴────────┴───────┴─────────────────────┴──────────────────┘
+┌─host────────────────────┬─port─┬─status─┬─error─┬─num_hosts_remaining─┬─num_hosts_active─┐
+│ clickhouse-2.clickhouse │ 9000 │      0 │       │                   0 │                0 │
+└─────────────────────────┴──────┴────────┴───────┴─────────────────────┴──────────────────┘
+
+9 rows in set. Elapsed: 0.634 sec.
+
+clickhouse-0.clickhouse.clickhouse.svc.cluster.local :) CREATE MATERIALIZED VIEW prodriges_374222.mv1_bueno ON CLUSTER kube_clickhouse_cluster TO prodriges_374222.distribuido_agregado_transacciones_bueno AS
+:-] SELECT
+:-]     user_id_out AS user_id,
+
+Syntax error: failed at position 186 (end of query) (line 3, col 28):
+
+CREATE MATERIALIZED VIEW prodriges_374222.mv1_bueno ON CLUSTER kube_clickhouse_cluster TO prodriges_374222.distribuido_agregado_transacciones_bueno AS
+SELECT
+    user_id_out AS user_id,
+
+Expected one of: EXTRACT, TIMESTAMPADD, TIMESTAMPDIFF, TIMESTAMP_DIFF, TRIM expression, lambda expression, expression with optional alias, number, logical-NOT expression, substitution, nullity checking, DATE_ADD, end of query, RIGHT, tuple, TIMESTAMP, qualified asterisk, literal, SELECT subquery, DATE_ADD expression, asterisk, EXTRACT expression, DATE, NULL, compound identifier, OpeningRoundBracket, string concatenation expression, logical-OR expression, identifier, MySQL-style global variable, element of expression with optional alias, array element expression, TIMESTAMP operator expression, element of expression, expression with prefix unary operator, DATE operator expression, list, delimited by operator of variable arity, DATE_DIFF, parenthesized expression, COLUMNS matcher, RIGHT expression, array, TRIM, DATE_DIFF expression, case, string literal, INTERVAL operator expression, DATESUB, TIMESTAMPSUB, CAST AS expression, INTERVAL, expression with ternary operator, CASE, LEFT expression, LEFT, CAST operator, CAST, additive expression, logical-AND expression, SUBSTRING, list of elements, RTRIM, DATEDIFF, SUBSTRING expression, BETWEEN expression, NOT, function, DATEADD, DATE_SUB, tuple element expression, comparison expression, Arrow, collection of literals, TIMESTAMP_ADD, list, delimited by binary operators, CAST expression, COLUMNS, TIMESTAMP_SUB, token, LTRIM, multiplicative expression, unary expression
+
+clickhouse-0.clickhouse.clickhouse.svc.cluster.local :)     sumState(amount) AS outcome_amount,
+:-]     toDate(toStartOfMonth(datetime)) AS month
+:-] FROM prodriges_374222.transacciones_bueno
+:-] GROUP BY user_id, month;
+
+Syntax error: failed at position 5 ('sumState') (line 1, col 5):
+
+    sumState(amount) AS outcome_amount,
+    toDate(toStartOfMonth(datetime)) AS month
+FROM prodriges_374222.transacciones_bueno
+GROUP BY user_id, month;
+
+Expected one of: ALTER query, Query with output, ALTER PROFILE, RENAME DATABASE, SHOW PRIVILEGES query, TRUNCATE, KILL, KILL QUERY query, SELECT query, possibly with UNION, list of union elements, ALTER ROLE, SELECT subquery, DESCRIBE query, SELECT query, subquery, possibly with UNION, SHOW GRANTS, SHOW CREATE, CREATE SETTINGS PROFILE or ALTER SETTINGS PROFILE query, WATCH, SHOW PROCESSLIST query, ALTER POLICY, ALTER USER, CREATE VIEW query, CHECK TABLE, SET ROLE, SELECT query, SELECT, REVOKE, CREATE USER, CREATE DICTIONARY, CREATE PROFILE, SET ROLE DEFAULT, ALTER SETTINGS PROFILE, EXPLAIN, SYSTEM, ALTER LIVE VIEW, RENAME TABLE, DROP query, SHOW ACCESS, OPTIMIZE query, USE, DROP access entity query, RENAME DICTIONARY, DETACH, SET, SHOW, DESC, OPTIMIZE TABLE, CREATE ROW POLICY, SET DEFAULT ROLE, EXCHANGE DICTIONARIES, CREATE POLICY, ALTER ROW POLICY, INSERT INTO, INSERT query, SHOW [TEMPORARY] TABLES|DATABASES|CLUSTERS|CLUSTER 'name' [[NOT] [I]LIKE 'str'] [LIMIT expr], GRANT, RENAME query, SHOW GRANTS query, SHOW PRIVILEGES, EXISTS, DROP, SYSTEM query, CREATE LIVE VIEW query, CREATE ROW POLICY or ALTER ROW POLICY query, CREATE QUOTA or ALTER QUOTA query, SHOW PROCESSLIST, ALTER QUOTA, CREATE QUOTA, CREATE DATABASE query, SET query, Query, CREATE, WITH, CREATE ROLE or ALTER ROLE query, EXTERNAL DDL FROM, EXCHANGE TABLES, EXISTS or SHOW CREATE query, WATCH query, REPLACE, CREATE ROLE, CREATE SETTINGS PROFILE, SET ROLE or SET DEFAULT ROLE query, CREATE USER or ALTER USER query, EXTERNAL DDL query, SHOW ACCESS query, SHOW CREATE QUOTA query, USE query, ATTACH, DESCRIBE, ALTER TABLE, ShowAccessEntitiesQuery, GRANT or REVOKE query, CREATE TABLE or ATTACH TABLE query
+
+clickhouse-0.clickhouse.clickhouse.svc.cluster.local :) CREATE MATERIALIZED VIEW prodriges_374222.mv1_bueno ON CLUSTER kube_clickhouse_cluster TO prodriges_374222.distribuido_agregado_transacciones_bueno AS
+:-] SELECT
+:-]     user_id_out AS user_id,
+:-]     sumState(amount) AS outcome_amount,
+:-]     toDate(toStartOfMonth(datetime)) AS month
+:-] FROM prodriges_374222.transacciones_bueno
+:-] GROUP BY user_id, month;
+
+CREATE MATERIALIZED VIEW prodriges_374222.mv1_bueno ON CLUSTER kube_clickhouse_cluster TO prodriges_374222.distribuido_agregado_transacciones_bueno AS
+SELECT
+    user_id_out AS user_id,
+    sumState(amount) AS outcome_amount,
+    toDate(toStartOfMonth(datetime)) AS month
+FROM prodriges_374222.transacciones_bueno
+GROUP BY
+    user_id,
+    month
+
+Query id: 6b8d964e-9079-469d-9c44-02824ee34c8d
+
+┌─host────────────────────┬─port─┬─status─┬─error─┬─num_hosts_remaining─┬─num_hosts_active─┐
+│ clickhouse-6.clickhouse │ 9000 │      0 │       │                   8 │                0 │
+│ clickhouse-4.clickhouse │ 9000 │      0 │       │                   7 │                0 │
+│ clickhouse-8.clickhouse │ 9000 │      0 │       │                   6 │                0 │
+│ clickhouse-2.clickhouse │ 9000 │      0 │       │                   5 │                0 │
+│ clickhouse-1.clickhouse │ 9000 │      0 │       │                   4 │                0 │
+│ clickhouse-5.clickhouse │ 9000 │      0 │       │                   3 │                0 │
+│ clickhouse-0.clickhouse │ 9000 │      0 │       │                   2 │                0 │
+│ clickhouse-7.clickhouse │ 9000 │      0 │       │                   1 │                0 │
+│ clickhouse-3.clickhouse │ 9000 │      0 │       │                   0 │                0 │
+└─────────────────────────┴──────┴────────┴───────┴─────────────────────┴──────────────────┘
+
+9 rows in set. Elapsed: 0.131 sec.
+
+clickhouse-0.clickhouse.clickhouse.svc.cluster.local :) CREATE TABLE prodriges_374222.distribuido_mv1_bueno ON CLUSTER kube_clickhouse_cluster AS prodriges_374222.mv1_bueno
+:-] ENGINE = Distributed(kube_clickhouse_cluster, prodriges_374222, mv1_bueno);
+
+CREATE TABLE prodriges_374222.distribuido_mv1_bueno ON CLUSTER kube_clickhouse_cluster AS prodriges_374222.mv1_bueno
+ENGINE = Distributed(kube_clickhouse_cluster, prodriges_374222, mv1_bueno)
+
+Query id: caf6ba76-232f-4ba4-96a5-79360531e843
+
+┌─host────────────────────┬─port─┬─status─┬─error─┬─num_hosts_remaining─┬─num_hosts_active─┐
+│ clickhouse-6.clickhouse │ 9000 │      0 │       │                   8 │                0 │
+│ clickhouse-4.clickhouse │ 9000 │      0 │       │                   7 │                0 │
+│ clickhouse-2.clickhouse │ 9000 │      0 │       │                   6 │                0 │
+│ clickhouse-8.clickhouse │ 9000 │      0 │       │                   5 │                0 │
+│ clickhouse-1.clickhouse │ 9000 │      0 │       │                   4 │                0 │
+│ clickhouse-5.clickhouse │ 9000 │      0 │       │                   3 │                0 │
+│ clickhouse-0.clickhouse │ 9000 │      0 │       │                   2 │                0 │
+│ clickhouse-7.clickhouse │ 9000 │      0 │       │                   1 │                0 │
+│ clickhouse-3.clickhouse │ 9000 │      0 │       │                   0 │                0 │
+└─────────────────────────┴──────┴────────┴───────┴─────────────────────┴──────────────────┘
+
+9 rows in set. Elapsed: 0.130 sec.
+
+clickhouse-0.clickhouse.clickhouse.svc.cluster.local :) CREATE MATERIALIZED VIEW prodriges_374222.mv2_bueno ON CLUSTER kube_clickhouse_cluster TO prodriges_374222.distribuido_agregado_transacciones_bueno AS
+:-] SELECT
+:-]     user_id_in AS user_id,
+:-]     sumState(amount) AS income_amount,
+:-]     toDate(toStartOfMonth(datetime)) AS month
+:-] FROM prodriges_374222.transacciones_bueno
+:-] GROUP BY user_id, month;
+
+CREATE MATERIALIZED VIEW prodriges_374222.mv2_bueno ON CLUSTER kube_clickhouse_cluster TO prodriges_374222.distribuido_agregado_transacciones_bueno AS
+SELECT
+    user_id_in AS user_id,
+    sumState(amount) AS income_amount,
+    toDate(toStartOfMonth(datetime)) AS month
+FROM prodriges_374222.transacciones_bueno
+GROUP BY
+    user_id,
+    month
+
+Query id: 41b8564a-af64-4cbd-a7d6-b8771577e731
+
+┌─host────────────────────┬─port─┬─status─┬─error─┬─num_hosts_remaining─┬─num_hosts_active─┐
+│ clickhouse-6.clickhouse │ 9000 │      0 │       │                   8 │                0 │
+│ clickhouse-4.clickhouse │ 9000 │      0 │       │                   7 │                0 │
+│ clickhouse-2.clickhouse │ 9000 │      0 │       │                   6 │                0 │
+│ clickhouse-8.clickhouse │ 9000 │      0 │       │                   5 │                0 │
+│ clickhouse-1.clickhouse │ 9000 │      0 │       │                   4 │                0 │
+│ clickhouse-5.clickhouse │ 9000 │      0 │       │                   3 │                0 │
+│ clickhouse-0.clickhouse │ 9000 │      0 │       │                   2 │                0 │
+│ clickhouse-7.clickhouse │ 9000 │      0 │       │                   1 │                0 │
+│ clickhouse-3.clickhouse │ 9000 │      0 │       │                   0 │                0 │
+└─────────────────────────┴──────┴────────┴───────┴─────────────────────┴──────────────────┘
+
+9 rows in set. Elapsed: 0.152 sec.
+
+clickhouse-0.clickhouse.clickhouse.svc.cluster.local :) CREATE TABLE prodriges_374222.distribuido_mv2_bueno ON CLUSTER kube_clickhouse_cluster AS prodriges_374222.mv2_bueno
+:-] ENGINE = Distributed(kube_clickhouse_cluster, prodriges_374222, mv2_bueno);
+
+CREATE TABLE prodriges_374222.distribuido_mv2_bueno ON CLUSTER kube_clickhouse_cluster AS prodriges_374222.mv2_bueno
+ENGINE = Distributed(kube_clickhouse_cluster, prodriges_374222, mv2_bueno)
+
+Query id: b2c26faf-b36a-4bdb-97e3-dca3a2bf44f2
+
+┌─host────────────────────┬─port─┬─status─┬─error─┬─num_hosts_remaining─┬─num_hosts_active─┐
+│ clickhouse-4.clickhouse │ 9000 │      0 │       │                   8 │                1 │
+│ clickhouse-2.clickhouse │ 9000 │      0 │       │                   7 │                1 │
+│ clickhouse-8.clickhouse │ 9000 │      0 │       │                   6 │                1 │
+│ clickhouse-1.clickhouse │ 9000 │      0 │       │                   5 │                1 │
+│ clickhouse-5.clickhouse │ 9000 │      0 │       │                   4 │                1 │
+│ clickhouse-0.clickhouse │ 9000 │      0 │       │                   3 │                1 │
+│ clickhouse-7.clickhouse │ 9000 │      0 │       │                   2 │                1 │
+│ clickhouse-3.clickhouse │ 9000 │      0 │       │                   1 │                1 │
+└─────────────────────────┴──────┴────────┴───────┴─────────────────────┴──────────────────┘
+┌─host────────────────────┬─port─┬─status─┬─error─┬─num_hosts_remaining─┬─num_hosts_active─┐
+│ clickhouse-6.clickhouse │ 9000 │      0 │       │                   0 │                0 │
+└─────────────────────────┴──────┴────────┴───────┴─────────────────────┴──────────────────┘
+
+9 rows in set. Elapsed: 0.755 sec.
+
+clickhouse-0.clickhouse.clickhouse.svc.cluster.local :) CREATE MATERIALIZED VIEW prodriges_374222.mv3_bueno ON CLUSTER kube_clickhouse_cluster
+:-] ENGINE = SummingMergeTree
+:-] ORDER BY user_id AS
+:-] SELECT
+:-]     user_id AS user_id,
+:-]     sumMerge(income_amount) - sumMerge(outcome_amount) AS current_balance
+:-] FROM prodriges_374222.agregado_transacciones_bueno
+:-] GROUP BY user_id;
+
+CREATE MATERIALIZED VIEW prodriges_374222.mv3_bueno ON CLUSTER kube_clickhouse_cluster
+ENGINE = SummingMergeTree
+ORDER BY user_id AS
+SELECT
+    user_id AS user_id,
+    sumMerge(income_amount) - sumMerge(outcome_amount) AS current_balance
+FROM prodriges_374222.agregado_transacciones_bueno
+GROUP BY user_id
+
+Query id: 7f4e16a7-a593-49d9-ad31-019bd8134dce
+
+┌─host────────────────────┬─port─┬─status─┬─error─┬─num_hosts_remaining─┬─num_hosts_active─┐
+│ clickhouse-6.clickhouse │ 9000 │      0 │       │                   8 │                0 │
+│ clickhouse-4.clickhouse │ 9000 │      0 │       │                   7 │                0 │
+│ clickhouse-2.clickhouse │ 9000 │      0 │       │                   6 │                0 │
+│ clickhouse-8.clickhouse │ 9000 │      0 │       │                   5 │                0 │
+│ clickhouse-1.clickhouse │ 9000 │      0 │       │                   4 │                0 │
+│ clickhouse-5.clickhouse │ 9000 │      0 │       │                   3 │                0 │
+│ clickhouse-0.clickhouse │ 9000 │      0 │       │                   2 │                0 │
+│ clickhouse-7.clickhouse │ 9000 │      0 │       │                   1 │                0 │
+│ clickhouse-3.clickhouse │ 9000 │      0 │       │                   0 │                0 │
+└─────────────────────────┴──────┴────────┴───────┴─────────────────────┴──────────────────┘
+
+9 rows in set. Elapsed: 0.129 sec.
+
+clickhouse-0.clickhouse.clickhouse.svc.cluster.local :) CREATE TABLE prodriges_374222.distribuido_mv3_bueno ON CLUSTER kube_clickhouse_cluster AS prodriges_374222.mv3_bueno
+:-] ENGINE = Distributed(kube_clickhouse_cluster, prodriges_374222, mv3_bueno);
+
+CREATE TABLE prodriges_374222.distribuido_mv3_bueno ON CLUSTER kube_clickhouse_cluster AS prodriges_374222.mv3_bueno
+ENGINE = Distributed(kube_clickhouse_cluster, prodriges_374222, mv3_bueno)
+
+Query id: 4ba1909a-6fbb-4cfa-888f-4ed41e0ce682
+
+┌─host────────────────────┬─port─┬─status─┬─error─┬─num_hosts_remaining─┬─num_hosts_active─┐
+│ clickhouse-6.clickhouse │ 9000 │      0 │       │                   8 │                0 │
+│ clickhouse-4.clickhouse │ 9000 │      0 │       │                   7 │                0 │
+│ clickhouse-8.clickhouse │ 9000 │      0 │       │                   6 │                0 │
+│ clickhouse-2.clickhouse │ 9000 │      0 │       │                   5 │                0 │
+│ clickhouse-1.clickhouse │ 9000 │      0 │       │                   4 │                0 │
+│ clickhouse-5.clickhouse │ 9000 │      0 │       │                   3 │                0 │
+│ clickhouse-0.clickhouse │ 9000 │      0 │       │                   2 │                0 │
+│ clickhouse-7.clickhouse │ 9000 │      0 │       │                   1 │                0 │
+│ clickhouse-3.clickhouse │ 9000 │      0 │       │                   0 │                0 │
+└─────────────────────────┴──────┴────────┴───────┴─────────────────────┴──────────────────┘
+
+9 rows in set. Elapsed: 0.123 sec.
+
+clickhouse-0.clickhouse.clickhouse.svc.cluster.local :) CREATE MATERIALIZED VIEW prodriges_374222.mv4_bueno ON CLUSTER kube_clickhouse_cluster
+:-] ENGINE = SummingMergeTree
+:-] ORDER BY (user_id, month) AS
+:-] SELECT
+:-]     user_id AS user_id,
+:-]     sumMerge(income_amount) AS total_income,
+:-]     sumMerge(outcome_amount) AS total_outcome,
+:-]     formatDateTime(month, '%m.%Y') AS month
+:-] FROM prodriges_374222. agregado_transacciones_buen
+:-] GROUP BY user_id, month;
+
+CREATE MATERIALIZED VIEW prodriges_374222.mv4_bueno ON CLUSTER kube_clickhouse_cluster
+ENGINE = SummingMergeTree
+ORDER BY (user_id, month) AS
+SELECT
+    user_id AS user_id,
+    sumMerge(income_amount) AS total_income,
+    sumMerge(outcome_amount) AS total_outcome,
+    formatDateTime(month, '%m.%Y') AS month
+FROM prodriges_374222.agregado_transacciones_buen
+GROUP BY
+    user_id,
+    month
+
+Query id: 0103e3d2-f0a2-44dd-9bee-688c04b20058
+
+┌─host────────────────────┬─port─┬─status─┬─error─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┬─num_hosts_remaining─┬─num_hosts_active─┐
+│ clickhouse-6.clickhouse │ 9000 │     60 │ Code: 60, e.displayText() = DB::Exception: Table prodriges_374222.agregado_transacciones_buen doesn't exist (version 21.8.10.19 (official build)) │                   8 │                0 │
+│ clickhouse-4.clickhouse │ 9000 │     60 │ Code: 60, e.displayText() = DB::Exception: Table prodriges_374222.agregado_transacciones_buen doesn't exist (version 21.8.10.19 (official build)) │                   7 │                0 │
+│ clickhouse-2.clickhouse │ 9000 │     60 │ Code: 60, e.displayText() = DB::Exception: Table prodriges_374222.agregado_transacciones_buen doesn't exist (version 21.8.10.19 (official build)) │                   6 │                0 │
+│ clickhouse-8.clickhouse │ 9000 │     60 │ Code: 60, e.displayText() = DB::Exception: Table prodriges_374222.agregado_transacciones_buen doesn't exist (version 21.8.10.19 (official build)) │                   5 │                0 │
+│ clickhouse-1.clickhouse │ 9000 │     60 │ Code: 60, e.displayText() = DB::Exception: Table prodriges_374222.agregado_transacciones_buen doesn't exist (version 21.8.10.19 (official build)) │                   4 │                0 │
+│ clickhouse-5.clickhouse │ 9000 │     60 │ Code: 60, e.displayText() = DB::Exception: Table prodriges_374222.agregado_transacciones_buen doesn't exist (version 21.8.10.19 (official build)) │                   3 │                0 │
+│ clickhouse-0.clickhouse │ 9000 │     60 │ Code: 60, e.displayText() = DB::Exception: Table prodriges_374222.agregado_transacciones_buen doesn't exist (version 21.8.10.19 (official build)) │                   2 │                0 │
+│ clickhouse-7.clickhouse │ 9000 │     60 │ Code: 60, e.displayText() = DB::Exception: Table prodriges_374222.agregado_transacciones_buen doesn't exist (version 21.8.10.19 (official build)) │                   1 │                0 │
+│ clickhouse-3.clickhouse │ 9000 │     60 │ Code: 60, e.displayText() = DB::Exception: Table prodriges_374222.agregado_transacciones_buen doesn't exist (version 21.8.10.19 (official build)) │                   0 │                0 │
+└─────────────────────────┴──────┴────────┴───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┴─────────────────────┴──────────────────┘
+← Progress: 0.00 rows, 0.00 B (0.00 rows/s., 0.00 B/s.)  0%
+9 rows in set. Elapsed: 0.127 sec.
+
+Received exception from server (version 21.8.10):
+Code: 60. DB::Exception: Received from clickhouse-0.clickhouse.clickhouse:9000. DB::Exception: There was an error on [clickhouse-6.clickhouse:9000]: Code: 60, e.displayText() = DB::Exception: Table prodriges_374222.agregado_transacciones_buen doesn't exist (version 21.8.10.19 (official build)).
+
+clickhouse-0.clickhouse.clickhouse.svc.cluster.local :) CREATE MATERIALIZED VIEW prodriges_374222.mv4_bueno ON CLUSTER kube_clickhouse_cluster
+:-] ENGINE = SummingMergeTree
+:-] ORDER BY (user_id, month) AS
+:-] SELECT
+:-]     user_id AS user_id,
+:-]     sumMerge(income_amount) AS total_income,
+:-]     sumMerge(outcome_amount) AS total_outcome,
+:-]     formatDateTime(month, '%m.%Y') AS month
+:-] FROM prodriges_374222. agregado_transacciones_bueno
+:-] GROUP BY user_id, month;
+
+CREATE MATERIALIZED VIEW prodriges_374222.mv4_bueno ON CLUSTER kube_clickhouse_cluster
+ENGINE = SummingMergeTree
+ORDER BY (user_id, month) AS
+SELECT
+    user_id AS user_id,
+    sumMerge(income_amount) AS total_income,
+    sumMerge(outcome_amount) AS total_outcome,
+    formatDateTime(month, '%m.%Y') AS month
+FROM prodriges_374222.agregado_transacciones_bueno
+GROUP BY
+    user_id,
+    month
+
+Query id: c28f57da-a82b-4c12-a96d-5225f4355842
+
+┌─host────────────────────┬─port─┬─status─┬─error─┬─num_hosts_remaining─┬─num_hosts_active─┐
+│ clickhouse-6.clickhouse │ 9000 │      0 │       │                   8 │                8 │
+└─────────────────────────┴──────┴────────┴───────┴─────────────────────┴──────────────────┘
+┌─host────────────────────┬─port─┬─status─┬─error─┬─num_hosts_remaining─┬─num_hosts_active─┐
+│ clickhouse-4.clickhouse │ 9000 │      0 │       │                   7 │                0 │
+│ clickhouse-2.clickhouse │ 9000 │      0 │       │                   6 │                0 │
+│ clickhouse-8.clickhouse │ 9000 │      0 │       │                   5 │                0 │
+│ clickhouse-1.clickhouse │ 9000 │      0 │       │                   4 │                0 │
+│ clickhouse-5.clickhouse │ 9000 │      0 │       │                   3 │                0 │
+│ clickhouse-0.clickhouse │ 9000 │      0 │       │                   2 │                0 │
+│ clickhouse-7.clickhouse │ 9000 │      0 │       │                   1 │                0 │
+│ clickhouse-3.clickhouse │ 9000 │      0 │       │                   0 │                0 │
+└─────────────────────────┴──────┴────────┴───────┴─────────────────────┴──────────────────┘
+
+9 rows in set. Elapsed: 0.700 sec.
+
+clickhouse-0.clickhouse.clickhouse.svc.cluster.local :) CREATE TABLE prodriges_374222.distribuido_mv4_bueno ON CLUSTER kube_clickhouse_cluster AS prodriges_374222.mv4_bueno
+:-] ENGINE = Distributed(kube_clickhouse_cluster, prodriges_374222, mv4_bueno);
+
+CREATE TABLE prodriges_374222.distribuido_mv4_bueno ON CLUSTER kube_clickhouse_cluster AS prodriges_374222.mv4_bueno
+ENGINE = Distributed(kube_clickhouse_cluster, prodriges_374222, mv4_bueno)
+
+Query id: bbb711c4-d2fe-4812-b57d-8ab6a1298818
+
+┌─host────────────────────┬─port─┬─status─┬─error─┬─num_hosts_remaining─┬─num_hosts_active─┐
+│ clickhouse-6.clickhouse │ 9000 │      0 │       │                   8 │                0 │
+│ clickhouse-4.clickhouse │ 9000 │      0 │       │                   7 │                0 │
+│ clickhouse-8.clickhouse │ 9000 │      0 │       │                   6 │                0 │
+│ clickhouse-2.clickhouse │ 9000 │      0 │       │                   5 │                0 │
+│ clickhouse-1.clickhouse │ 9000 │      0 │       │                   4 │                0 │
+│ clickhouse-5.clickhouse │ 9000 │      0 │       │                   3 │                0 │
+│ clickhouse-0.clickhouse │ 9000 │      0 │       │                   2 │                0 │
+│ clickhouse-7.clickhouse │ 9000 │      0 │       │                   1 │                0 │
+│ clickhouse-3.clickhouse │ 9000 │      0 │       │                   0 │                0 │
+└─────────────────────────┴──────┴────────┴───────┴─────────────────────┴──────────────────┘
+
+9 rows in set. Elapsed: 0.125 sec.
+
+clickhouse-0.clickhouse.clickhouse.svc.cluster.local :) select * from prodriges_374222.distribuido_mv3_bueno limit 10;
+
+SELECT *
+FROM prodriges_374222.distribuido_mv3_bueno
+LIMIT 10
+
+Query id: c0c2bd19-eb2c-4bdc-95f4-67d1bbaf07cf
+
+Ok.
+
+0 rows in set. Elapsed: 0.169 sec.
+
+clickhouse-0.clickhouse.clickhouse.svc.cluster.local :) DROP TABLE IF EXISTS prodriges_374222.transacciones_bueno ON CLUSTER kube_clickhouse_cluster;
+
+DROP TABLE IF EXISTS prodriges_374222.transacciones_bueno ON CLUSTER kube_clickhouse_cluster
+
+Query id: 2de7d783-48f5-4e72-a458-79260a00bf9a
+
+┌─host────────────────────┬─port─┬─status─┬─error─┬─num_hosts_remaining─┬─num_hosts_active─┐
+│ clickhouse-6.clickhouse │ 9000 │      0 │       │                   8 │                0 │
+│ clickhouse-4.clickhouse │ 9000 │      0 │       │                   7 │                0 │
+│ clickhouse-8.clickhouse │ 9000 │      0 │       │                   6 │                0 │
+│ clickhouse-2.clickhouse │ 9000 │      0 │       │                   5 │                0 │
+│ clickhouse-1.clickhouse │ 9000 │      0 │       │                   4 │                0 │
+│ clickhouse-5.clickhouse │ 9000 │      0 │       │                   3 │                0 │
+│ clickhouse-0.clickhouse │ 9000 │      0 │       │                   2 │                0 │
+│ clickhouse-7.clickhouse │ 9000 │      0 │       │                   1 │                0 │
+│ clickhouse-3.clickhouse │ 9000 │      0 │       │                   0 │                0 │
+└─────────────────────────┴──────┴────────┴───────┴─────────────────────┴──────────────────┘
+
+9 rows in set. Elapsed: 0.122 sec.
+
+clickhouse-0.clickhouse.clickhouse.svc.cluster.local :) DROP TABLE IF EXISTS prodriges_374222.distribuido_transacciones_bueno ON CLUSTER kube_clickhouse_cluster;
+
+DROP TABLE IF EXISTS prodriges_374222.distribuido_transacciones_bueno ON CLUSTER kube_clickhouse_cluster
+
+Query id: d7ba6e12-3959-4b8c-8396-ede330961ee3
+
+┌─host────────────────────┬─port─┬─status─┬─error─┬─num_hosts_remaining─┬─num_hosts_active─┐
+│ clickhouse-6.clickhouse │ 9000 │      0 │       │                   8 │                0 │
+│ clickhouse-4.clickhouse │ 9000 │      0 │       │                   7 │                0 │
+│ clickhouse-8.clickhouse │ 9000 │      0 │       │                   6 │                0 │
+│ clickhouse-2.clickhouse │ 9000 │      0 │       │                   5 │                0 │
+│ clickhouse-1.clickhouse │ 9000 │      0 │       │                   4 │                0 │
+│ clickhouse-5.clickhouse │ 9000 │      0 │       │                   3 │                0 │
+│ clickhouse-0.clickhouse │ 9000 │      0 │       │                   2 │                0 │
+│ clickhouse-7.clickhouse │ 9000 │      0 │       │                   1 │                0 │
+│ clickhouse-3.clickhouse │ 9000 │      0 │       │                   0 │                0 │
+└─────────────────────────┴──────┴────────┴───────┴─────────────────────┴──────────────────┘
+
+9 rows in set. Elapsed: 0.120 sec.
+
+clickhouse-0.clickhouse.clickhouse.svc.cluster.local :) CREATE TABLE prodriges_374222.transacciones_bueno ON CLUSTER kube_clickhouse_cluster (
+:-]     `user_id_out` Int64,
+:-]     `user_id_in` Int64,
+`amount` Float64,
+    `datetime` DateTime
+) ENGINE = MergeTree
+PART    `important` Int8,
+:-]     `amount` Float64,
+:-]     `datetime` DateTime
+:-] ) ENGINE = MergeTree
+:-] PARTITION BY toYYYYMM(datetime)
+:-] ORDER BY user_id_out;
+
+CREATE TABLE prodriges_374222.transacciones_bueno ON CLUSTER kube_clickhouse_cluster
+(
+    `user_id_out` Int64,
+    `user_id_in` Int64,
+    `important` Int8,
+    `amount` Float64,
+    `datetime` DateTime
+)
+ENGINE = MergeTree
+PARTITION BY toYYYYMM(datetime)
+ORDER BY user_id_out
+
+Query id: cead2b7f-e3e3-4ee9-ade2-41b932ad9d68
+
+┌─host────────────────────┬─port─┬─status─┬─error─┬─num_hosts_remaining─┬─num_hosts_active─┐
+│ clickhouse-6.clickhouse │ 9000 │      0 │       │                   8 │                0 │
+│ clickhouse-4.clickhouse │ 9000 │      0 │       │                   7 │                0 │
+│ clickhouse-2.clickhouse │ 9000 │      0 │       │                   6 │                0 │
+│ clickhouse-8.clickhouse │ 9000 │      0 │       │                   5 │                0 │
+│ clickhouse-1.clickhouse │ 9000 │      0 │       │                   4 │                0 │
+│ clickhouse-5.clickhouse │ 9000 │      0 │       │                   3 │                0 │
+│ clickhouse-0.clickhouse │ 9000 │      0 │       │                   2 │                0 │
+│ clickhouse-7.clickhouse │ 9000 │      0 │       │                   1 │                0 │
+│ clickhouse-3.clickhouse │ 9000 │      0 │       │                   0 │                0 │
+└─────────────────────────┴──────┴────────┴───────┴─────────────────────┴──────────────────┘
+
+9 rows in set. Elapsed: 0.120 sec.
+
+clickhouse-0.clickhouse.clickhouse.svc.cluster.local :) CREATE TABLE prodriges_374222.distribuido_transacciones_bueno ON CLUSTER kube_clickhouse_cluster AS prodriges_374222.transacciones_bueno
+:-] ENGINE = Distributed(kube_clickhouse_cluster, prodriges_374222, transacciones_bueno, xxHash64(user_id_out));
+
+CREATE TABLE prodriges_374222.distribuido_transacciones_bueno ON CLUSTER kube_clickhouse_cluster AS prodriges_374222.transacciones_bueno
+ENGINE = Distributed(kube_clickhouse_cluster, prodriges_374222, transacciones_bueno, xxHash64(user_id_out))
+
+Query id: 4eff6cf0-c75a-40d5-86f8-b7abf3e18301
+
+┌─host────────────────────┬─port─┬─status─┬─error─┬─num_hosts_remaining─┬─num_hosts_active─┐
+│ clickhouse-6.clickhouse │ 9000 │      0 │       │                   8 │                1 │
+│ clickhouse-4.clickhouse │ 9000 │      0 │       │                   7 │                1 │
+│ clickhouse-2.clickhouse │ 9000 │      0 │       │                   6 │                1 │
+│ clickhouse-8.clickhouse │ 9000 │      0 │       │                   5 │                1 │
+│ clickhouse-5.clickhouse │ 9000 │      0 │       │                   4 │                1 │
+│ clickhouse-0.clickhouse │ 9000 │      0 │       │                   3 │                1 │
+│ clickhouse-7.clickhouse │ 9000 │      0 │       │                   2 │                1 │
+│ clickhouse-3.clickhouse │ 9000 │      0 │       │                   1 │                1 │
+└─────────────────────────┴──────┴────────┴───────┴─────────────────────┴──────────────────┘
+┌─host────────────────────┬─port─┬─status─┬─error─┬─num_hosts_remaining─┬─num_hosts_active─┐
+│ clickhouse-1.clickhouse │ 9000 │      0 │       │                   0 │                0 │
+└─────────────────────────┴──────┴────────┴───────┴─────────────────────┴──────────────────┘
+
+9 rows in set. Elapsed: 0.428 sec.
+
+clickhouse-0.clickhouse.clickhouse.svc.cluster.local :) exit
+Bye.
+(base) prodriges-374222@jupyter-spark-674ddb86b-765m5:~$ cat shared-data/clickhouse_data/transactions_12M.parquet | \
+> clickhouse-client --host=clickhouse-0.clickhouse.clickhouse \
+> --user=prodriges_374222 \
+> --password=479Ak98oRi \
+> --query="INSERT INTO prodriges_374222. distribuido_transacciones_bueno FORMAT Parquet"
+(base) prodriges-374222@jupyter-spark-674ddb86b-765m5:~$ clickhouse-client --host=clickhouse-0.clickhouse.clickhouse --user=prodriges_374222 --ask-password
+ClickHouse client version 21.8.10.19 (official build).
+Password for user (prodriges_374222):
+Connecting to clickhouse-0.clickhouse.clickhouse:9000 as user prodriges_374222.
+Connected to ClickHouse server version 21.8.10 revision 54449.
+
+clickhouse-0.clickhouse.clickhouse.svc.cluster.local :) select * from prodriges_374222.distribuido_mv3_bueno limit 10;
+
+SELECT *
+FROM prodriges_374222.distribuido_mv3_bueno
+LIMIT 10
+
+Query id: 96a39a59-8a2b-48b4-bdc2-1e85c26c5746
+
+┌─user_id─┬─────current_balance─┐
+│      15 │   26815.23000000007 │
+│      27 │ -25708.169999999875 │
+│      28 │   7568.790000000081 │
+│      31 │  -4068.820000000065 │
+│      40 │ -1477.7100000001374 │
+│      44 │  -8039.220000000118 │
+│      65 │ -21188.450000000084 │
+│     133 │   4554.360000000015 │
+│     150 │ -17313.609999999848 │
+│     152 │   52146.11999999982 │
+└─────────┴─────────────────────┘
+
+10 rows in set. Elapsed: 0.025 sec.
+
+clickhouse-0.clickhouse.clickhouse.svc.cluster.local :) select * from prodriges_374222.distribuido_mv3_bueno limit 20;
+
+SELECT *
+FROM prodriges_374222.distribuido_mv3_bueno
+LIMIT 20
+
+Query id: 100336a7-083f-45ba-a147-4bab36d059bc
+
+┌─user_id─┬─────current_balance─┐
+│      15 │   26815.23000000007 │
+│      27 │ -25708.169999999875 │
+│      28 │   7568.790000000081 │
+│      31 │  -4068.820000000065 │
+│      40 │ -1477.7100000001374 │
+│      44 │  -8039.220000000118 │
+│      65 │ -21188.450000000084 │
+│     133 │   4554.360000000015 │
+│     150 │ -17313.609999999848 │
+│     152 │   52146.11999999982 │
+│     155 │  10108.180000000095 │
+│     164 │ -28045.889999999934 │
+│     202 │  -9632.409999999989 │
+│     204 │  -4798.500000000073 │
+│     215 │  -7466.370000000054 │
+│     224 │ -15761.409999999989 │
+│     240 │   36187.79999999994 │
+│     244 │ -17187.390000000072 │
+│     260 │  -30468.60000000008 │
+│     265 │  21159.790000000095 │
+└─────────┴─────────────────────┘
+
+20 rows in set. Elapsed: 0.042 sec.
+
+clickhouse-0.clickhouse.clickhouse.svc.cluster.local :) select * from prodriges_374222.distribuido_mv4_bueno limit 20;
+
+SELECT *
+FROM prodriges_374222.distribuido_mv4_bueno
+LIMIT 20
+
+Query id: da1721c6-4ea8-46c2-be19-fd47343a0e1f
+
+┌─user_id─┬───────total_income─┬──────total_outcome─┬─month───┐
+│      15 │           53468.69 │  42730.83999999999 │ 01.2018 │
+│      15 │ 49846.920000000006 │  42387.64000000001 │ 02.2018 │
+│      15 │           50819.01 │  38248.51000000002 │ 03.2018 │
+│      15 │           51008.34 │           58160.13 │ 04.2018 │
+│      15 │  51864.34000000001 │  58426.03000000002 │ 05.2018 │
+│      15 │           54987.63 │ 57899.450000000004 │ 06.2018 │
+│      15 │  61306.11999999999 │  54940.44999999997 │ 07.2018 │
+│      15 │  49134.20999999999 │ 53875.699999999975 │ 08.2018 │
+│      15 │           45626.81 │  47324.35000000002 │ 09.2018 │
+│      15 │           57219.08 │ 46037.520000000004 │ 10.2018 │
+│      15 │           46351.06 │  46339.17000000001 │ 11.2018 │
+│      15 │ 50137.479999999996 │ 48584.670000000006 │ 12.2018 │
+│      27 │ 45806.799999999996 │  56446.17000000001 │ 01.2018 │
+│      27 │           39580.17 │           40475.49 │ 02.2018 │
+│      27 │  58813.98999999999 │ 49819.130000000005 │ 03.2018 │
+│      27 │           58081.66 │           47982.55 │ 04.2018 │
+│      27 │  41411.00000000001 │           55516.17 │ 05.2018 │
+│      27 │ 53572.189999999995 │  54257.39999999998 │ 06.2018 │
+│      27 │  43223.24999999999 │  56839.96999999998 │ 07.2018 │
+│      27 │           47609.14 │  47214.86999999998 │ 08.2018 │
+└─────────┴────────────────────┴────────────────────┴─────────┘

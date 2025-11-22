@@ -1,0 +1,248 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import datetime as dt
+import gc
+import lightgbm as lgbm
+import optuna
+import os
+import warnings
+from sklearn.metrics import mean_absolute_error, mean_squared_error
+import imageio.v2 as imageio
+from tqdm.notebook import tqdm
+from itertools import product
+
+warnings.filterwarnings('ignore')
+
+df = pd.read_csv('/kaggle/input/industrial/train_data.csv')
+test = pd.read_csv('/kaggle/input/industrial/valid.csv')
+test.columns = ["timestamp", "lat", "lon", "point", "sum", "error"]
+test.head()
+
+df.dtypes
+
+spb_edges = {'lat': (59.831191, 60.039332),
+             'lon': (30.142969, 30.515771)}
+df[['lon', 'lat']].agg(['max', 'min'])
+
+for col in ('lat', 'lon'):
+    df = df[(df[col] > spb_edges[col][0]) & (df[col] < spb_edges[col][1])]
+
+un_lat = df.lat.unique()
+un_lon = df.lon.unique()
+print(len(un_lat), len(un_lon), len(df))
+
+hyperparams = {
+    'poly_cnt_threshold': 2000,
+    'prediction_interval': 24*7*4, # known_lag
+    'n_val_trials': 15,
+    'metric': 'rmse'
+}
+
+poly = df.groupby(['lon', 'lat']).likescount.count().rename('post_cnt').reset_index()
+poly = poly[poly["post_cnt"] > hyperparams['poly_cnt_threshold']][['lon', 'lat']]
+
+df_new = pd.merge(df, poly, on=['lon', 'lat'])
+print(len(df_new.timestamp.unique()))
+df_new.head()
+
+df_new.dtypes
+
+feature_names = [
+    'likescount',
+    'commentscount',
+    'symbols_cnt',
+    'words_cnt',
+    'hashtags_cnt',
+    'mentions_cnt',
+    'links_cnt',
+    'emoji_cnt',
+]
+
+%%time
+data = df_new.groupby(['timestamp', 'lon', 'lat'])[feature_names].agg([np.mean, np.std, np.min, np.max, 'count']).fillna(0)
+data.columns = [f'{col1}_{col2}' for col1, col2 in data.columns]
+data = data.rename(columns={'likescount_count': 'posts_count'})
+data = data.drop(columns=[f'{feature}_count' for feature in feature_names if feature != 'likescount'])
+data = data.reset_index()
+data['datetime'] = data['timestamp'].apply(lambda x: dt.datetime.fromtimestamp(x))
+data = data.set_index('datetime')
+data = data.astype({"posts_count": "float64"})
+
+data.head()
+
+data.dtypes
+
+test_data = test[['timestamp', 'lat', 'lon']].copy()
+test_data['posts_count'] = [np.nan]*len(test_data)
+test_data['datetime'] = test_data['timestamp'].apply(lambda x: dt.datetime.fromtimestamp(int(x)))
+test_data = test_data.set_index('datetime')
+test_data = test_data.sort_index()
+test_data = test_data.astype({"timestamp": "int64", "lat": "float64", "lon": "float64"})
+test_data.head()
+
+test_data.dtypes
+
+full_data = pd.concat([data, test_data])
+full_data.tail()
+
+full_data.dtypes
+
+def add_features(df, featue_cols):
+    def get_sin_cos(col, period, name):
+        return pd.DataFrame(
+            {f'{name}_sin': np.sin(col / period * 2 * np.pi),
+             f'{name}_cos': np.cos(col / period * 2 * np.pi)})
+
+    # time features
+    hour_features = get_sin_cos(df.index.hour, 24, 'hour').set_index(df.index)
+    week_features = get_sin_cos(df.index.weekday, 7, 'weekday').set_index(df.index)
+    year_features = get_sin_cos(df.index.day_of_year, 365, 'yearday').set_index(df.index)
+
+    # lag features
+    dates_lag_stats = df.groupby(df.index)[featue_cols].agg(['max', 'mean', 'min', 'std']).shift(hyperparams['prediction_interval'])
+    dates_lag_stats.columns = [f'lag_{name1}_{name2}' for name1, name2 in dates_lag_stats.columns]
+
+    df = df.merge(dates_lag_stats, left_index=True, right_index=True)
+    return pd.concat([df, hour_features, week_features, year_features], axis=1)
+
+print(full_data.columns)
+feature_columns = full_data.columns[3:]
+
+%%time
+full_data = add_features(full_data, feature_columns).drop(columns=feature_columns[feature_columns != 'posts_count'])
+
+full_data.dtypes
+
+train_data = full_data.iloc[:len(data)]
+test_data = full_data.iloc[len(data):]
+
+val_start = dt.datetime(2020, 1, 10, 0)
+columns = train_data.columns
+features = columns[columns != 'posts_count']
+target = 'posts_count'
+
+train_x = train_data.loc[:val_start - dt.timedelta(hours=1), features]
+val_x = train_data.loc[val_start:, features]
+train_y = np.log(train_data.loc[:val_start - dt.timedelta(hours=1), target].astype('float'))
+val_y = np.log(train_data.loc[val_start:, target].astype('float'))
+
+val_x.index.max() - val_x.index.min()
+
+train = lgbm.Dataset(train_x, train_y)
+val = lgbm.Dataset(val_x, val_y)
+
+def objective(trial):
+    params = {}
+    params['num_leaves'] = trial.suggest_int('num_leaves', 2, 512)
+    params['max_depth'] = trial.suggest_int('max_depth', 4, 32)
+    params['min_child_weight'] = trial.suggest_int('min_child_weight', 1, 16)
+    params['feature_fraction'] = trial.suggest_uniform('feature_fraction', 0.4, 1.0)
+    params['bagging_fraction'] = trial.suggest_uniform('bagging_fraction', 0.4, 1.0)
+    params['bagging_freq'] = trial.suggest_int('bagging_freq', 1, 8)
+    params['lambda_l1'] = trial.suggest_loguniform('lambda_l1', 1e-8, 1.0)
+    params['lambda_l2'] = trial.suggest_loguniform('lambda_l2', 1e-8, 1.0)
+    params['num_boost_round'] = trial.suggest_int('num_boost_round', 10, 500)
+    params.update({
+        'metric': hyperparams['metric'],
+        'boosting_type': 'gbdt',
+        'early_stopping_rounds': 10,
+        'verbosity': -1,
+        'random_state': 42,
+    })
+
+    model = lgbm.train(params, train, valid_sets=[val])
+    return model.best_score['valid_0'][hyperparams['metric']]
+
+study = optuna.create_study(direction='minimize')
+study.optimize(objective,
+    n_trials=hyperparams['n_val_trials'],
+)
+
+pd.DataFrame.from_dict(study.best_params, orient='index').rename(columns={0: 'lgbm hyperparams'})
+
+params = {
+    "metric": "rmse",
+    "boosting_type": "gbdt",
+    "early_stopping_rounds": 10,
+    "verbosity": -1,
+    "random_state": 69,
+}
+
+params.update(study.best_params)
+params
+
+model = lgbm.train(params, train, valid_sets=[val])
+
+preds = np.exp(model.predict(val_x))
+print('Validation MAE: ' + str(mean_absolute_error(np.exp(val_y), preds)))
+
+test_data.dtypes
+
+test_num = test.astype({
+    "timestamp": "int64",
+    "lat": "float64",
+    "lon": "float64",
+    "sum": "float64",
+    "error": "float64",
+})
+
+final_result = test_data.merge(test_num[['timestamp', 'lon', 'lat', 'sum']], on=['timestamp', 'lon', 'lat'])
+
+preds = np.exp(model.predict(final_result[features]))
+
+plt.hist(preds, bins=50, color="teal");
+
+final_result['pred'] = np.round(np.maximum(preds, 5))
+
+fig, ax = plt.subplots()
+
+rmse = np.sqrt(np.mean((final_result['pred'] - final_result['sum'])**2))
+custom_metric = ((final_result['pred'] - final_result['sum']).abs() / final_result['pred']).mean()
+
+ax.hist(final_result['pred'], alpha=0.8, color='salmon', zorder=2, label='preds', density=True)
+ax.hist(final_result['sum'], alpha=0.8, color='cornflowerblue', zorder=2, label='truths', density=True)
+ax.grid(color='lightblue', zorder=0)
+ax.legend()
+ax.set_xlabel('posts_count')
+ax.set_title(f'RMSE: {rmse:.2f}') #, custom metric: {custom_metric:.2f}
+fig.tight_layout()
+
+final_result[['timestamp', 'lon', 'lat', 'pred']].to_csv('test_pred.csv')
+
+final_result
+
+ax = lgbm.plot_importance(model, importance_type='gain', figsize=(10,5), max_num_features=20, precision=0)
+plt.tight_layout()
+
+dates = pd.DataFrame(pd.date_range(dt.datetime(2020, 2, 1, 0), dt.datetime(2020, 2, 28, 23), freq='H'), columns=['datetime'])
+dates['key'] = 0
+poly['key'] = 0
+
+new_test = poly.merge(dates).drop(columns=['key']).set_index('datetime').sort_index()
+new_test['timestamp'] = new_test.index.astype('int64') // 10 ** 9
+new_test = new_test[['timestamp', 'lon', 'lat']]
+new_test['posts_count'] = [np.nan]*len(new_test)
+new_test
+
+new_full_data = pd.concat([data, new_test])
+new_full_data = add_features(new_full_data, feature_columns)
+new_test = new_full_data.iloc[-len(new_test):]
+
+new_preds = np.around(np.exp(model.predict(new_test[features])))
+new_test['preds'] = new_preds
+
+tmp = train_data[train_data.index >= dt.datetime(2020, 1, 1, 0)]
+lonlat = tmp.groupby(['lon', 'lat']).posts_count.sum().sort_values().reset_index()
+lonlat = lonlat[lonlat.posts_count > 200].reset_index(drop=True)
+
+plt.figure(figsize=(40, 30))
+for i in range(4):
+    plt.subplot(2, 2, i+1)
+    cur_poly = np.random.randint(0, len(lonlat))
+    tmp[(tmp.lon == lonlat.loc[cur_poly][0]) & (tmp.lat == lonlat.loc[cur_poly][1])].posts_count.plot()
+    new_test[(new_test.lon == lonlat.loc[cur_poly][0]) & (new_test.lat == lonlat.loc[cur_poly][1])].preds.plot()
+    plt.title(f"Lon: {round(lonlat.loc[cur_poly][0], 5)}, Lat: {round(lonlat.loc[cur_poly][1], 5)}")
+plt.savefig('forecasts_examples.png', bbox_inches='tight')
+
+

@@ -1,0 +1,439 @@
+import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib import cm
+from matplotlib.colors import ListedColormap
+import random
+from scipy.optimize import leastsq
+from scipy.optimize import minimize
+from sympy import *
+import scipy
+#Create 3D to understand problem
+
+#Draw linear_image
+
+#generate the noisy data
+
+alpha = random.random()
+beta = random.random()
+x_data = np.array([k/100 for k in range(101)])  # Corrected x_data generation
+y_data = np.array([]) 
+
+for x in x_data:
+    noise = np.random.normal(0, 1)
+    y = alpha * x + beta + noise
+    y_data = np.append(y_data, y)  
+plt.figure(figsize=(6, 4))
+plt.scatter(x_data,y_data)
+def error_function(a,b,func,x_data,y_data):
+    errors = 0
+    for i in range(0,101):
+        predictions = func(a, b, x_data[i])
+        error = (predictions - y_data[i]) ** 2
+        errors+=error
+    return errors
+def rational_function(a, b, x):
+    return a / (1 + b * x)
+def linear_function(a, b, x):
+    return a * x + b
+#calculate gradient
+
+def gradient(func, x, y,x_data, y_data):
+    grad = np.zeros(2)
+    h = 1e-5
+    grad[0]=(error_function(x+h,y,func,x_data,y_data)-error_function(x,y,func,x_data,y_data))/h
+    grad[1]=(error_function(x,y+h,func,x_data,y_data)-error_function(x,y,func,x_data,y_data))/h 
+    return grad
+#calculate hessian matrix
+
+def hessian(func, x, y, x_data, y_data):
+    h = 1e-5
+    hess = np.zeros((2,2))
+    hess[0,0]=(error_function(x+2*h,y,func,x_data, y_data)-2*error_function(x+h,y,func,x_data, y_data)+error_function(x,y,func,x_data, y_data))/(h**2)
+    hess[0,1]=(error_function(x+h,y+h,func,x_data, y_data)-error_function(x+h,y,func,x_data, y_data)-error_function(x,y+h,func,x_data, y_data)+error_function(x,y,func,x_data, y_data))/(h**2)
+    hess[1,0]=hess[0,1]
+    hess[1,1]=(error_function(x,y+2*h,func,x_data, y_data)-2*error_function(x,y+h,func,x_data, y_data)+error_function(x,y,func,x_data, y_data))/(h**2)
+    return hess
+#generate nosie dataset and draw scatter
+
+#1.Gradient descent
+
+def gradient_descent(f_name, lr, a, b, x_data, y_data):
+    da = 0
+    db = 0
+    Length = len(x_data)
+
+    for xi, yi in zip(x_data, y_data):
+        if f_name == 'rational':
+            da +=  2 * (a / (1 + b * xi) - yi) / (1 + b * xi)
+            db += 2 * (a / (1 + b * xi) - yi) * (- xi * a / (1 + b * xi) ** 2)
+        else:
+            da += 2 * (a * xi + b - yi) * xi
+            db += 2 * (a * xi + b - yi)
+
+    #update parameters
+    a = a - lr * (1 / Length) * da
+    b = b - lr * (1 / Length) * db
+    return a,b
+#do descent
+def descent(x_data, y_data, a, b, lr, f_name):  
+    for i in range(5000):
+        a, b = gradient_descent(f_name, lr, a, b, x_data, y_data)
+    return a, b
+lr = 0.01
+eps = 0.001
+f_name = ['linear', 'rational']
+a, b = 0.0, 0.0
+
+fig, ax = plt.subplots(2, 1, figsize = (10, 8))
+for i, func in enumerate(f_name):
+    a, b = descent(x_data, y_data, a, b, lr, func)
+    ax[i].scatter(x_data, y_data)
+    if func == 'linear':
+        GD_linear = [a, b]
+        print(GD_linear)
+        ax[i].plot(np.array(x_data),  a * np.array(x_data) + b, 'r')
+        
+    else:
+        GD_rat = [a, b]
+        ax[i].plot(np.array(x_data), a/ (1 + b * np.array(x_data)), 'r') 
+        print( GD_rat)
+    ax[i].set_title(f'{func} approximation')
+#2.Conjugate Gradient descent method of optimization
+
+def linear(ab):
+    a, b = ab
+    return np.sum((a * np.array(x_data) + b - np.array(y_data)) ** 2, axis=0)
+
+def rational(ab):
+    a, b = ab
+    return np.sum((a / (1 + b * np.array(x_data)) - np.array(y_data)) ** 2, axis=0)
+# types of approximation fuctions
+func_types = [linear, rational]
+start_values = [[1., 1.], [1., -0.5]]
+
+fig, axs = plt.subplots(2, 1, figsize = (10, 8))
+for i, (func, start) in enumerate(zip(func_types, start_values)):
+    print(f'Start training for {func}')
+    # plot graphs
+    axs[i].scatter(x_data, y_data, c='y')
+    if func == linear:
+        Result = minimize(linear, start, method='CG', options={'xtol':1e-3, 'disp':True})
+        a, b = Result.x
+        CGD_lin = [a, b]
+        axs[i].plot(x_data, a * np.array(x_data) + b, 'r')
+        axs[i].set_title('linear approximation')
+        print('789789789:',a,b)
+    else:
+        Result = minimize(rational, start, method='CG', options={'xtol':1e-3, 'disp':True})
+        a, b = Result.x
+        CGD_rat = [a, b]
+        axs[i].plot(x_data, a / (1 + b * np.array(x_data)), 'r') 
+        axs[i].set_title('rational approximation')
+    print(f'Founded values: {a, b}, real values: {alpha, beta}')
+    print(' ')
+def error_function(params,func,x_data, y_data):
+    errors = 0
+    a,b =params
+    for i in range(0,101):
+        predictions = func(a, b, x_data[i])
+        error = (predictions - y_data[i]) ** 2
+        errors+=error
+    return errors
+def rational_function(a, b, x):
+    return a / (1 + b * x)
+def linear_function(a, b, x):
+    return a * x + b
+def gradient(params,func,x_data,y_data):
+    x,y =params
+    grad = np.zeros(2)
+    h = 1e-5
+    grad[0]=(error_function((x+h,y),func,x_data,y_data)-error_function((x,y),func,x_data,y_data))/h
+    grad[1]=(error_function((x,y+h),func,x_data,y_data)-error_function((x,y),func,x_data,y_data))/h 
+    return grad
+def hessian(params,func,x_data,y_data):
+    x,y =params
+    h = 1e-5
+    hess = np.zeros((2,2))
+    hess[0,0]=(error_function((x+2*h,y),func,x_data, y_data)-2*error_function((x+h,y),func,x_data, y_data)+error_function((x,y),func,x_data, y_data))/(h**2)
+    hess[0,1]=(error_function((x+h,y+h),func,x_data, y_data)-error_function((x+h,y),func,x_data, y_data)-error_function((x,y+h),func,x_data, y_data)+error_function((x,y),func,x_data, y_data))/(h**2)
+    hess[1,0]=hess[0,1]
+    hess[1,1]=(error_function((x,y+2*h),func,x_data, y_data)-2*error_function((x,y+h),func,x_data, y_data)+error_function((x,y),func,x_data, y_data))/(h**2)
+    return hess
+def Newton_method(func):
+        x0=(0.3,0.3)
+        epsilon=0.001
+        a=np.zeros((2,2))
+        result = scipy.optimize.minimize(error_function, x0,args=(func,x_data, y_data), method='Newton-CG',jac=gradient, hess=hessian,tol=epsilon,options={'xtol': 0.001,'disp': True}) 
+        optimal_params = result.x
+        minimum_error = result.fun
+        return optimal_params, minimum_error
+optimal_params, minimum_error = Newton_method(linear_function)
+plt.figure(figsize=(6, 4))
+print(optimal_params)
+plt.scatter(x_data, y_data)
+plt.plot(x_data,optimal_params[0]*np.array(x_data)+optimal_params[1],'r')
+optimal_params_1, minimum_error_1 = Newton_method(rational_function)
+print(optimal_params_1)
+plt.figure(figsize=(6, 4))
+plt.scatter(x_data, y_data)
+plt.plot(x_data,optimal_params_1[0]/(1+np.array(x_data)*optimal_params_1[1]),'r')
+#LMA
+
+def linear_function(params, x):
+    a, b = params
+    return a * x + b
+
+def rational_function(params, x):
+    a, b = params
+    return a / (1 + b * x)
+
+# Define the error function for LMA
+def error_function(params, func, x_data, y_data):
+    predictions = func(params, x_data)
+    error = y_data - predictions
+    return error
+
+initial_params = [0.3, 0.3]
+y_data
+
+result_linear = scipy.optimize.least_squares(
+    error_function, initial_params, method='lm', args=(linear_function, x_data, y_data), ftol=0.001,xtol=0.001)
+
+result_rational = scipy.optimize.least_squares(
+    error_function, initial_params, method='lm', args=(rational_function, x_data, y_data), ftol=0.001,xtol=0.001)
+
+
+optimal_params_linear = result_linear.x
+optimal_params_rational = result_rational.x
+
+plt.figure(figsize=(6, 4))
+plt.scatter(x_data, y_data, label='Original Data')
+plt.plot(x_data, linear_function(optimal_params_linear, x_data), label='Linear Fit', linestyle='--')
+plt.xlabel('x')
+plt.ylabel('y')
+plt.legend()
+plt.title('Linear Data Fitting using Levenberg-Marquardt Algorithm')
+plt.show()
+
+plt.figure(figsize=(6, 4))
+plt.scatter(x_data, y_data, label='Original Data')
+plt.plot(x_data, rational_function(optimal_params_rational, x_data), label='Rational Fit', linestyle='--')
+plt.xlabel('x')
+plt.ylabel('y')
+plt.legend()
+plt.title('Rational Data Fitting using Levenberg-Marquardt Algorithm')
+plt.show()
+
+print("Optimization terminated successfully:(linear)", result_linear.success)
+print("Current function value:(linear)", result_linear.cost)
+print("Function evaluations:(linear)", result_linear.nfev)
+print(optimal_params_linear)
+
+
+print("Optimization terminated successfully:(rational)", result_rational.success)
+print("Current function value:(rational)", result_rational.cost)
+print("Function evaluations:(rational)", result_rational.nfev)
+print(optimal_params_rational)
+b-r linear
+
+def linear_function(a, b, x):
+    return a * x + b
+def error_function(params,func):
+    a, b = params
+    errors = 0
+    for i in range(0,101):
+        predictions = func(a, b, x_data[i])
+        error = (predictions - y_data[i]) ** 2
+        errors+=error
+    return errors
+list1 = []
+f_calculation = 0
+N_iterations = 0
+for a in np.arange(0, 1, 0.001):
+    for b in np.arange(0, 1, 0.001):
+        errors = error_function([a, b], linear_function)
+        f_calculation +=1
+        N_iterations +=1
+        list1.append([errors, a, b])
+
+best_params_linear = min(list1, key=lambda x: x[0])
+a_linear, b_linear = best_params_linear[1], best_params_linear[2]
+
+x_data = np.array(x_data)
+
+exh_lin = [a_linear,b_linear]
+plt.scatter(x_data,y_data)
+plt.plot(x_data, a_linear*x_data+b_linear, 'r')
+
+print('[a, b] =',[a_linear,b_linear])
+print('Exhaustive Search-linear_function_f-calculations:',f_calculation)
+print('Exhaustive Search-linear_N of iterations:',N_iterations)
+b-r_rational
+
+def rational_function(a, b, x):
+    return a / (1 + b * x)
+def error_function(params,func):
+    a, b = params
+    errors = 0
+    for i in range(0,101):
+        predictions = func(a, b, x_data[i])
+        error = (predictions - y_data[i]) ** 2
+        errors+=error
+    return errors
+list2 = []
+f_calculation = 0
+N_iterations = 0
+for a in np.arange(0, 1, 0.001):
+    for b in np.linspace(-0.999, 0.001, 1000): 
+        errors = error_function([a, b],rational_function)
+        f_calculation +=1
+        N_iterations +=1
+        list2.append([errors, a, b])
+
+best_params_linear_r= min(list2, key=lambda x: x[0])
+a_linear, b_linear = best_params_linear_r[1], best_params_linear_r[2]
+
+x_data = np.array(x_data)
+
+exh_rat = [a_linear,b_linear]
+plt.scatter(x_data,y_data)
+plt.plot(x_data, a_linear/(1+b_linear*x_data),'r')
+         
+print('[a, b] =',[a_linear,b_linear])
+print('Exhaustive Search-rational_function_f-calculations:',f_calculation)
+print('Exhaustive Search-rational_function_N of iterations:', N_iterations)
+#Gauss_Method
+
+# Function that traverses the first vector
+def core_Method_1(b, x, y, func,f_calc):
+    errors_1=[]
+    for i in np.arange(0, 1, 0.001):
+        f_calc += 1
+        error_value = error_function([i, b],func)
+        errors_1.append([error_value,i])
+
+    best_params_linear = min(errors_1, key=lambda z: z[0])
+    a = best_params_linear[1]
+    return a,f_calc
+#Function that traverses the second vector
+def core_Method_2(a,b_low,b_top,x,y,func,f_calc):
+    errors_2=[]
+    for i in np.arange(b_low,b_top, 0.001):
+        f_calc += 1
+        error_value = error_function([a, i],func)
+        errors_2.append([error_value,i])
+        
+    best_params_linear = min(errors_2, key=lambda z: z[0])
+    b = best_params_linear[1]
+    return b,f_calc
+# Loop  two functions and pass arguments to each other
+def Gauss_Method(func,b,b_low,b_top): 
+    f_calc=0
+    a=0.005
+    N=0
+    while(True):
+       N+=2
+       a_prev=a
+       b_prev=b
+       a,f_calc=core_Method_1(b, x, y, func,f_calc)
+       b,f_calc=core_Method_2(a,b_low,b_top,x,y,func,f_calc)
+       if abs(a - a_prev) < epsilon and abs(b - b_prev) < epsilon:
+            break
+            
+    return a,b,N,f_calc 
+#Gauss_Method_linear
+
+def linear_function(a, b, x):
+    return a * x + b
+def error_function(params,func):
+    a, b = params
+    errors = 0
+    for i in range(0,101):
+        predictions = func(a, b, x_data[i])
+        error = (predictions - y_data[i]) ** 2
+        errors+=error
+    return errors
+epsilon=0.001
+a,b,N,f_calc=Gauss_Method(linear_function,0.005,0,1)
+x_data = np.array(x_data)
+gs_lin=[a,b]
+plt.scatter(x_data,y_data)
+plt.plot(x_data, a*x_data+b,'r')
+print('[a, b] =',[a,b])
+print('Exhaustive Search-rational_function_f-calculations:',f_calc)
+print('Exhaustive Search-rational_function_N of iterations:',N)
+Gauss_Method_linear
+
+def rational_function(a, b, x):
+    return a / (1 + b * x)
+def error_function(params,func):
+    a, b = params
+    errors = 0
+    for i in range(0,101):
+        predictions = func(a, b, x_data[i])
+        error = (predictions - y_data[i]) ** 2
+        errors+=error
+    return errors
+epsilon=0.001
+a,b,N,f=Gauss_Method(rational_function,-0.005,-0.999,0.001)
+x_data = np.array(x_data)
+plt.scatter(x_data,y_data)
+plt.plot(x_data,a/(1+b*x_data), 'r')
+gs_rat=[a,b]
+print('[a, b] =',[a,b])
+print('Gauss_Method_rational_f-calculations:',f_calc)
+print('Gauss_Method_rational_function_N of iterations:',N)
+#2.3 Nelder-Mead Methods
+
+initial_guess = [0.3, 0.3] # Replace a_guess and b_guess with your initial values
+
+result_nelder_mead = minimize(error_function, initial_guess, method='nelder-mead', args=(linear_function), tol=0.001, options={'xatol': 0.001,'disp': True})
+
+a_rational_nelder_mead, b_rational_nelder_mead = result_nelder_mead.x
+
+nm_lin=[a_rational_nelder_mead,b_rational_nelder_mead]
+
+plt.scatter(x_data,y_data)
+plt.plot(x_data, a_rational_nelder_mead*x_data+b_rational_nelder_mead, 'r')
+
+print('[a, b] =',[a_rational_nelder_mead,b_rational_nelder_mead])
+initial_guess = [0.3, 0.3]
+
+result_nelder_mead = minimize(error_function, initial_guess, method='nelder-mead', args=( rational_function), tol=0.001, options={'xatol': 0.001,'disp': True})
+
+a_rational_nelder_mead, b_rational_nelder_mead = result_nelder_mead.x
+nm_rat=[a_rational_nelder_mead,b_rational_nelder_mead]
+plt.scatter(x_data, y_data)
+plt.plot(x_data, a_rational_nelder_mead / (1 + b_rational_nelder_mead * x_data), 'r')
+
+print('[a, b] =', [a_rational_nelder_mead, b_rational_nelder_mead])
+plt.figure(figsize=(10,7))
+plt.title("Linear", fontsize=14)
+plt.xlabel("X")
+plt.ylabel("Y")
+
+plt.plot(x_data, y_data, '.b', label="Given data")
+
+plt.plot(x_data, exh_lin[0]*x_data + exh_lin[1], 'g', label="Exhaustive", linewidth=3)
+plt.plot(x_data, gs_lin[0]*x_data + gs_lin[1], 'r', label="Gauss", linewidth=3)
+plt.plot(x_data, nm_lin[0]*x_data + nm_lin[1], 'y', label="Nelder-Mead", linewidth=3)
+plt.plot(x_data, optimal_params[0]*x_data + optimal_params[1], 'b', label="Newton_method", linewidth=3)
+plt.plot(x_data, optimal_params_linear[0]*x_data + optimal_params_linear[1], 'k', label="LMA", linewidth=3)
+plt.plot(x_data, CGD_lin[0]*x_data + CGD_lin[1], 'w', label="Conjugate Gradient descent", linewidth=3)
+plt.plot(x_data,  GD_linear[0]*x_data +  GD_linear[1],  'c', label="Gradient descent", linewidth=3)
+
+
+plt.legend(fontsize=14)
+plt.figure(figsize=(10,7))
+plt.title("Rational", fontsize=14)
+plt.plot(x_data, y_data, '.b', label="Given data")
+plt.xlabel("X")
+plt.ylabel("Y")
+plt.plot(x_data, exh_rat[0] / (1 + exh_rat[1]*x_data), 'g', label="Exhaustive", linewidth=3)
+plt.plot(x_data, gs_rat[0] / (1 + gs_rat[1]*x_data), 'r', label="Gauss", linewidth=3)
+plt.plot(x_data, nm_rat[0] / (1 + nm_rat[1]*x_data), 'y', label="Nelder-Mead", linewidth=3)
+plt.plot(x_data, optimal_params_1[0] / (1 + optimal_params_1[1]*x_data), 'b', label="Newton_method", linewidth=3)
+plt.plot(x_data, optimal_params_rational[0] / (1 + optimal_params_rational[1]*x_data), 'k', label="LMA", linewidth=3)
+plt.plot(x_data,  CGD_lin[0] / (1 +  CGD_lin[1]*x_data), 'w', label="Conjugate Gradient descent", linewidth=3)
+plt.plot(x_data, GD_rat[0] / (1 + GD_rat[1]*x_data), 'c', label="Gradient descent", linewidth=3)
+plt.legend(fontsize=14)

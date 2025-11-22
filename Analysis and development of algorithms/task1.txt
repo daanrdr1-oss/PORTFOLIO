@@ -1,0 +1,353 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# In[ ]:
+
+
+import numpy as np
+import timeit
+import matplotlib.pyplot as plt
+import random
+from scipy.optimize import curve_fit
+from scipy.integrate import quad 
+
+
+# In[2]:
+
+
+#1.- Constant function
+def constant(array):
+    return 0
+
+
+# In[3]:
+
+
+#2.- Sum of elements
+def sum_(array):
+    return np.sum(array)
+
+
+# In[4]:
+
+
+#3.- Product of elements
+def product(array):
+    return np.prod(array)
+
+
+# In[5]:
+
+
+def polynominal_normal(array):
+    res = 0
+    num = 1.5
+    n = len(array)
+    powers_of_num = np.power(num, np.arange(n, dtype=np.float64))
+    res = np.sum(array * powers_of_num)
+    return res
+
+
+# In[6]:
+
+
+#4.b) Polynomial Horner method
+def horner(array): 
+    x = 1.5
+    result = 0
+    for i in range(len(array), 0, -1):
+        result =array[i - 1] + x * result
+    return result
+
+
+# In[7]:
+
+
+#5.- Bubble sort
+def bubblesort(array):
+    for z in range(len(array)):
+        for x in range(len(array)-1):
+            if array[x] > array[x + 1]:
+                array[x], array[x + 1] = array[x + 1], array[x]
+    return array
+
+
+# In[8]:
+
+
+#6.- Quick sort
+def QuickSort(array):
+    return np.sort(array, kind="quick sort")
+
+
+# In[9]:
+
+
+#7.- Timsort
+def timsort(array):
+    return np.sort(array, kind='stable')
+
+
+# In[10]:
+
+
+#Create random arrays
+array_size = 2000
+random_arrays = [np.random.uniform(0, 1, size=array_size) for _ in range(5)]
+for i, arr in enumerate(random_arrays):
+    print(f"Random Array {i + 1}:")
+    print(arr)
+    print()
+
+
+# In[11]:
+
+
+#Time spent on each N.
+def timetotal(function, v, n): #v are the times of runs.
+    timeseries = []
+    for y in range(1,n+1): # y goes from 1 to 2000
+        t = 0
+        for x in range(v):
+            start = timeit.default_timer()
+            function(random_arrays[x][:y])# Use the first y elements of one of the 5 random arrays
+            end = timeit.default_timer()
+            t += (end - start)
+        timeseries.append(t / v)
+    return timeseries
+
+
+# In[12]:
+
+
+c_1 = timetotal(constant, 5, 2000)
+
+
+# In[13]:
+
+
+c_2 = timetotal(sum_, 5, 2000)
+
+
+# In[14]:
+
+
+c_3 = timetotal(product, 5, 2000)
+
+
+# In[15]:
+
+
+c_4_a = timetotal(polynominal_normal, 5, 2000)
+
+
+# In[16]:
+
+
+c_4_b = timetotal(horner, 5, 2000)
+
+
+# In[17]:
+
+
+c_5 = timetotal(bubblesort, 5, 500)
+
+
+# In[18]:
+
+
+c_6 = timetotal(QuickSort, 5, 2000)
+
+
+# In[19]:
+
+
+c_7 = timetotal(timsort, 5, 2000)
+
+
+# In[20]:
+
+
+# Graph Constant
+def f(x):
+    return min(c_1)
+
+plt.figure(figsize=(10,5))
+plt.plot(c_1,label="Empirical")
+plt.plot(range(1,2000),[f(i) for i in range(1,2000)],label="Theorical")
+plt.title("Constant")
+plt.ylabel('Time (seconds)')
+plt.xlabel('N')
+plt.legend(loc = "upper left")
+plt.show()
+
+
+# In[21]:
+
+
+# Graph Sum
+
+def lineal(x, a, b):
+    return (a * x + b)
+
+xdata = np.linspace(1, 2000, 2000, endpoint=True)
+plt.figure(figsize=(10,5))
+plt.plot(c_2,label="Empirical")
+popt, pcov = curve_fit(lineal, xdata, c_2)
+plt.plot(xdata,lineal(xdata, *popt),label="Theorical")
+plt.title("Sum of elements")
+plt.ylabel('Time (seconds)')
+plt.xlabel('N')
+plt.legend(loc = "upper left")
+plt.show()
+
+
+# In[22]:
+
+
+# Graph Product
+
+xdata = np.linspace(1, 2000, 2000, endpoint=True)
+plt.figure(figsize=(10,5))
+plt.plot(c_3,label="Empirical")
+popt, pcov = curve_fit(lineal, xdata, c_3)
+plt.plot(xdata,lineal(xdata, *popt),label="Theorical")
+plt.title("Product")
+plt.ylabel('Time (seconds)')
+plt.xlabel('N')
+plt.legend(loc = "upper left")
+plt.show()
+
+
+# In[23]:
+
+
+# Graph Polynominal normal
+
+xdata = np.linspace(1, 2000, 2000, endpoint=True)
+plt.figure(figsize=(10,5))
+plt.plot(c_4_a,label="Empirical")
+popt, pcov = curve_fit(lineal, xdata, c_4_a)
+plt.plot(xdata,lineal(xdata, *popt),label="Theorical")
+plt.title("Polynominal normal")
+plt.ylabel('Time (seconds)')
+plt.xlabel('N')
+plt.legend(loc = "upper left")
+plt.show()
+
+
+# In[24]:
+
+
+# Graph Polynominal Horner
+
+xdata = np.linspace(1, 2000, 2000, endpoint=True)
+plt.figure(figsize=(10,5))
+plt.plot(c_4_b,label="Empirical")
+popt, pcov = curve_fit(lineal, xdata, c_4_b)
+plt.plot(xdata,lineal(xdata, *popt),label="Theorical")
+plt.title("Polynominal Horner")
+plt.ylabel('Time (seconds)')
+plt.xlabel('N')
+plt.legend(loc = "upper left")
+plt.show()
+
+
+# In[25]:
+
+
+# Graph Bubble Sort
+
+def cuad(x, a, b, c):
+    return a * x**2 + b * x + c
+xdata = np.arange(1, 501)
+plt.figure(figsize=(10,5))
+plt.plot(c_5,label="Empirical")
+popt, pcov = curve_fit(cuad, xdata, c_5)
+plt.plot(xdata,cuad(xdata, *popt),label="Theorical")
+plt.ylabel('Time (seconds)')
+plt.title("Bubble Sort")
+plt.ylabel('Time (seconds)')
+plt.xlabel('N')
+plt.legend(loc = "upper left")
+plt.show()
+
+
+# In[26]:
+
+
+# Graph Quicksort
+
+def nlogn(x, a, b, c):
+    return a * x * np.log(b * x) + c
+
+xdata = np.linspace(1, 2000, 2000, endpoint=True)
+plt.figure(figsize=(10,5))
+plt.plot(c_6,label="Empirical")
+popt, pcov = curve_fit(nlogn, xdata, c_6)
+plt.plot(xdata,nlogn(xdata, *popt),label="Theorical")
+plt.ylabel('Time (seconds)')
+plt.title("Quicksort")
+plt.ylabel('Time (seconds)')
+plt.xlabel('N')
+plt.legend(loc = "upper left")
+plt.show()
+
+
+# In[27]:
+
+
+# Graph Timsort
+
+plt.figure(figsize=(10,5))
+plt.plot(c_7,label="Empirical")
+popt, pcov = curve_fit(nlogn, xdata, c_7)
+plt.plot(xdata,nlogn(xdata, *popt),label="Theorical")
+plt.ylabel('Time (seconds)')
+plt.title("Timsort")
+plt.ylabel('Time (seconds)')
+plt.xlabel('N')
+plt.legend(loc = "upper left")
+plt.show()
+
+
+# In[28]:
+
+
+#Time spent on each N (Matrix)
+def timetotal_matrix(v, n): #v are the times of runs.
+    timeseries = []
+    for y in range(1, n + 1):
+        t = 0
+        for x in range(v):
+            matrix1 = np.random.random((y, y))
+            matrix2 = np.random.random((y, y))
+            start = timeit.default_timer()
+            np.matmul(matrix1,matrix2)
+            end = timeit.default_timer()
+            t += (end - start)
+        timeseries.append(t / v)
+    return timeseries
+
+c_8 = timetotal_matrix(5, 500)
+
+
+
+# In[29]:
+
+
+# Graph Matrix
+def cub(x, a, b, c, d):
+    return a * x**3 + b * x**2 + c * x + d
+m_data = np.arange(1, 501)
+plt.figure(figsize=(10,5))
+plt.plot(c_8,label="Empirical")
+popt, pcov = curve_fit(cub, m_data, c_8)
+plt.plot(m_data,cub(m_data, *popt),label="Theorical")
+plt.ylabel('Time (seconds)')
+plt.title("Product Matrix")
+plt.ylabel('Time (seconds)')
+plt.xlabel('N')
+plt.legend(loc = "upper left")
+plt.show()
+

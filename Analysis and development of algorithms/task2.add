@@ -1,0 +1,72 @@
+import random
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
+%matplotlib notebook
+
+alpha = random.random()
+beta = random.random()
+x_data = []
+y_data = []
+
+for i in range(0, 101):
+    x = i / 100
+    noise = np.random.normal(0, 1)
+    y = alpha * x + beta + noise
+    x_data.append(x)
+    y_data.append(y) 
+x_data = np.array(x_data)
+fig1, ax1 = plt.subplots()
+ax1.set_xlim(0, 1)
+ax1.set_ylim(-2, 4)
+
+y_red1 = 1 / (1 - 0.5 * x_data)
+line_red1, = ax1.plot(x_data, y_red1, 'r', lw=2, label='a/(1-bx)')  # 添加红线的标签
+
+line_blue1, = ax1.plot(x_data, 0.5 * x_data + 1, 'b', lw=2, label='y_data=0.5*x+1')  # 添加蓝线的标签
+
+plt.legend(loc='upper left')
+
+
+
+def init1():
+    line_red1.set_data([], [])
+    return line_red1, 
+
+def update1(frame):
+    b = frame / 100.0
+    
+    y_red1 = 1 / (1 - b * x_data)
+    line_red1.set_data(x_data, y_red1)
+    
+    return line_red1
+
+ani1 = FuncAnimation(fig1, update1, frames=range(0, 101), init_func=init1, blit=True)
+plt.show()
+
+fig2, ax2 = plt.subplots()
+ax2.set_xlim(0, 1)
+ax2.set_ylim(-2, 4)
+
+y_red2 = 1 / (1 + 0.1 * x_data)
+line_red2, = ax2.plot(x_data, y_red2, 'r', lw=2, label='a/(1+bx)')  
+
+line_blue2, = ax2.plot(x_data, 0.5 * x_data + 1, 'b', lw=2, label='y_data=0.5*x+1')  
+
+plt.legend(loc='upper left')
+
+def init2():
+    line_red2.set_data([], [])
+    return line_red2, 
+
+def update2(frame):
+    b = frame / 100.0
+    
+    y_red2 = 1 / (1 + b * x_data)
+    line_red2.set_data(x_data, y_red2)
+    
+    return line_red2
+
+ani2 = FuncAnimation(fig2, update2, frames=range(0, 101), init_func=init2, blit=True)
+
+plt.show()
